@@ -13,7 +13,7 @@ Table of content:
 7. [License](#License)
 
 ## <a name="the-idea">The Idea</a>
-  At the initial stage of thinking about the project, we mostly think how we gonna create a structure for our backedn app,
+  At the initial stage of thinking about the project, we mostly think how we gonna create a structure for our backend app,
 basically there are few things which we most care about, being modular, and have well scalable structure for developing rest api, having a clean code and many more options based on our need.
 so based in this **Idea** I came up with this solution to my self that I create some thing that is modular and ready to use without extra codes.
 Simple to use without using extra modules and trying to have everything in the structre based on the map(soon I add photo of that map).
