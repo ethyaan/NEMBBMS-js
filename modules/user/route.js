@@ -5,19 +5,19 @@ const router = require('express').Router;
  * @type Class
  */
 class usersRouter {
-    /**
-     * constructor to Set routing NameSpace and registering the routes
-     * @param app
-     */
-    constructor(app) {
+	/**
+	 * constructor to Set routing NameSpace and registering the routes
+	 * @param app
+	 */
+	constructor(app) {
 
-        // const controller = require('./controller')(app);
-        const userRouter = router();
+		// const controller = require('./controller')(app);
+		const userRouter = router();
 
 
-        app.use('/user', userRouter);
+		app.use('/user', userRouter);
 
-    }
+	}
 
 }
 
