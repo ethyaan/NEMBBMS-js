@@ -1,4 +1,6 @@
 const logger = require('../services/logger');
+const { createError } = require('../services/error');
+
 class MasterModel {
 
 	model = null;
@@ -23,7 +25,16 @@ class MasterModel {
 	 * @param EntityObject
 	 */
     async createEntity(EntityObject) {
-
+        const entity = new this.model(EntityObject);
+		const { error, data: newEntity } = await this.asyncWrapper(entity.save());
+		if (error) {
+			const parsedError = this.mongooseErrorHandler(error);
+			const options = {statusCode: 500, msg: parsedError, errorCode: 'DBERROR'};
+			logger.info(`DB=>(${this.modelName})Model=>createEntity : ${parsedError}`);
+			return createError(options, {});
+		}
+		logger.success(`DB=>(${this.modelName})Model=>createEntity : new newEntity created `, newEntity);
+		return Promise.resolve(newEntity);
     }
 
     /**
@@ -65,6 +76,14 @@ class MasterModel {
 	async deleteEntity(query, options) {
 
     }
+
+    /**
+	 * a simple wrapper to catch rejected promise without try, catch block
+	 * @param promise
+	 */
+	asyncWrapper (promise) {
+		return promise.then((data) => ({error: null, data})).catch((error) => ({error, data: null}));
+	}
 
     /**
 	 * parse mongoose Error Object and extract information
