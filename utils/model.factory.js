@@ -45,7 +45,22 @@ class MasterModel {
 	 * @param find
 	 */
     async findEntityByParams(query, projection, options, find) {
-
+        let preparedQuery;
+		if (!!find) {
+			preparedQuery = this.model.find(query, projection || {}, options || {});
+			if (find.limit) { preparedQuery.limit(find.limit); }
+		} else {
+			preparedQuery = this.model.findOne(query, projection || {}, options || {});
+		}
+		const { error, data } = await this.asyncWrapper(preparedQuery.exec());
+		if (error) {
+			const parsedError = this.mongooseErrorHandler(error);
+			logger.error(`DB=>${this.modelName}=>findEntityByParams : `, parsedError);
+			return createError({ msg: parsedError, statusCode: 500, errorCode: 'DBERROR' });
+		} else {
+			logger.log(`DB=>${this.modelName}=>findEntityByParams : `, data);
+			return Promise.resolve(data);
+		}
     }
 
     /**
@@ -56,7 +71,22 @@ class MasterModel {
 	 * @param pagination
 	 */
     async findEntityByParamsPagination(query, projection, options, pagination) {
-
+        const { error: countError, data: count } = await this.asyncWrapper(this.model.countDocuments(query).exec());
+		if (countError) {
+			const parsedError = this.mongooseErrorHandler(countError);
+			logger.error(`DB=>${this.modelName}=>findEntityByParamsPagination=>countDocuments : `, parsedError);
+			return createError({ msg: parsedError, statusCode: 500, errorCode: 'DBERROR' });
+		}
+		const skip = (pagination.pageNumber - 1) * pagination.limit;
+		const { error, data } = await this.asyncWrapper(this.model.find(query, projection || {}, options || {}).skip(skip).limit(pagination.limit).lean());
+		if (error) {
+			const parsedError = this.mongooseErrorHandler(error);
+			logger.error(`DB=>${this.modelName}=>findEntityByParamsPagination=>find : `, parsedError);
+			return createError({ msg: parsedError, statusCode: 500, errorCode: 'DBERROR' });
+		}
+		const result = { totalRecords: count, data };
+		logger.log(`DB=>${this.modelName}=>findEntityByParamsPagination : `, JSON.stringify(result));
+		return Promise.resolve(result);
     }
 
     /**
@@ -65,7 +95,15 @@ class MasterModel {
 	 * @param properties
 	 */
 	async updateEntityByModel(model, properties) {
-
+        Object.assign(model, properties);
+		const { error, data } = await this.asyncWrapper(model.save());
+		if (error) {
+			const parsedError = this.mongooseErrorHandler(error);
+			logger.error(`DB=>${this.modelName}=>updateEntityByModel: `, error);
+			return createError({ msg: parsedError, statusCode: 500, errorCode: 'DBERROR' });
+		}
+		logger.log(`DB=>${this.modelName}=>updateEntityByModel : `, JSON.stringify(data));
+		return Promise.resolve(data);
     }
 
     /**
@@ -74,7 +112,15 @@ class MasterModel {
 	 * @param options
 	 */
 	async deleteEntity(query, options) {
-
+        const {error, data } = await this.asyncWrapper(this.model.findOneAndRemove(query, options || {}).exec());
+		if (error) {
+			const parsedError = this.mongooseErrorHandler(error);
+			logger.error(`Model=>${this.modelName}=>deleteEntity : `, parsedError);
+			return createError({ msg: parsedError, statusCode: 500, errorCode: 'DBERROR' });
+		} else {
+			logger.log(`DB=>${this.modelName}=>deleteEntity : `, data);
+			return Promise.resolve(data);
+		}
     }
 
     /**
