@@ -1,9 +1,11 @@
 const express           = require('express');
 const cors              = require('cors');
-const logger            =  require('./services/logger');
+const path				= require('path');
+const logger            = require('./services/logger');
 
 
 const app = express();
+const modulesPath = path.join(__dirname, './modules');
 
 app.use(express.urlencoded({ limit: '10mb', extended: false }));
 app.use(express.json({ limit: '10mb' }));
@@ -54,6 +56,9 @@ app.use((req, res, next) => {
 	next();
 });
 
-// modules(app);
+require('fs').readdirSync(modulesPath).forEach(function(file) {
+	require(path.join(__dirname, `./modules/${file}/route.js`))(app);
+});
+
 
 module.exports = app;
