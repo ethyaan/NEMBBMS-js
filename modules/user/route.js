@@ -11,9 +11,10 @@ class usersRouter {
 	 */
 	constructor(app) {
 
-		// const controller = require('./controller')(app);
+		const controller = require('./controller')(app);
 		const userRouter = router();
 
+		userRouter.post('/', controller.createUser);
 
 		app.use('/user', userRouter);
 
