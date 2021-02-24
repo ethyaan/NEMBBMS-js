@@ -11,11 +11,12 @@ class sampleRouter {
      */
     constructor(app) {
 
-        // const controller = require('./controller')(app);
-        const userRouter = router();
+        const controller = require('./controller')(app);
+        const sampleRouter = router();
 
+        sampleRouter.get('/', controller.sampleAPI);
 
-        app.use('/sample', userRouter);
+        app.use('/sample', sampleRouter);
 
     }
 
