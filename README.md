@@ -1,4 +1,8 @@
-# nodejs-backend-structure-modular-JS
+# nodejs-backend-structure-modular-JS  
+[![forthebadge made-with-javascript](http://ForTheBadge.com/images/badges/made-with-javascript.svg)](https://www.javascript.com/)
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/ehsanagh/nodejs-backend-structure-modular-JS/graphs/commit-activity)
+[![Generic badge](https://img.shields.io/badge/Author-EhsanAghaei-<COLOR>.svg)](mailto:ehsan.aghaeii@gmail.com)
 ## NodejS Backend structure modular JS
 **Node JS Backend Application in Modular and structured way
 This is a ready and production level tested structure worked with great perfomance and efficency.**
