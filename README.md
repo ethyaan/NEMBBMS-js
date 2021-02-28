@@ -5,7 +5,14 @@
 [![Generic badge](https://img.shields.io/badge/Author-EhsanAghaei-<COLOR>.svg)](mailto:ehsan.aghaeii@gmail.com)
 ## NodejS Backend structure modular JS
 **Node JS Backend Application in Modular and structured way
-This is a ready and production level tested structure worked with great perfomance and efficency.**
+This is a ready and production level tested structure worked with great perfomance and efficency.**   
+ Features 
+  1. JWT Authentication based on Redis
+  2. Using Facory pattern & Singletone 
+  3. Having API Validation usign express-validator
+  4. API document ready using postman collection in root directory
+  5. modular and well structured source tree
+
 
 Table of content:
 1. [The Idea](#the-idea)
