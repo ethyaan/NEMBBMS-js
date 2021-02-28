@@ -193,6 +193,157 @@ class userController {
 	}
 
 	/**
+	 * log out
+	 * @param req
+	 * @param res
+	 */
+	async logout(req, res) {
+		return res.send({ message: 'success' });
+	}
+
+	/**
+	 * change user password
+	 * @param req
+	 * @param res
+	 */
+	async changeUserPassword(req, res) {
+		try {
+			const userInfo = await this.model.findEntityByParams({ _id: req._user._id });
+			const currentPassword = sha256(req.body.password).toString();
+			const newPassword = sha256(req.body.new).toString();
+			if (currentPassword === userInfo.password) {
+				await this.model.updateEntityByModel(userInfo, { password: newPassword });
+				res.send({ status: true });
+			} else {
+				res.status(400).send({
+					errorCode: 'VALIDATIONFAILED',
+					additionalInformation: {
+						message: 'current password is wrong!'
+					}
+				});
+			}
+		} catch (error) {
+			this.errorHandler(error, res);
+		}
+	}
+
+	/**
+	 * update user profile
+	 * @param req
+	 * @param res
+	 */
+	async updateProfile(req, res) {
+		try {
+			const userInfo = await this.model.findEntityByParams({ _id: req._user._id });
+			await this.model.updateEntityByModel(userInfo, {
+				name: req.body.name,
+				lastName: req.body.lastName
+			});
+			res.send({ message: 'your profile updated successfully' });
+		} catch (error) {
+			this.errorHandler(error, res);
+		}
+	}
+
+	/**
+	 * generate a new random password and share with user
+	 * @param req
+	 * @param res
+	 */
+	async forgotPassword(req, res) {
+		try {
+			const userMobile = req.body.mobile.toLowerCase();
+			const userInfo = await this.model.findEntityByParams({ mobile: userMobile }, { password: false });
+			if (userInfo === null) {
+				return res.status(400).send({
+					errorCode: 'AUTHFAILED',
+					additionalInformation: {
+						message: 'username is wrong'
+					}
+				});
+			}
+			const vcDate = new Date(userInfo.verificationCodeDate);
+			vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
+			if (Date.now() < vcDate.getTime()) {
+				res.send({ success: true, verificationCodeDate: userInfo.verificationCodeDate });
+			} else if (userInfo.verified === true) {
+				const verificationCode = this.generateVerificationCode();
+				const verificationCodeDate = new Date();
+				await this.model.updateEntityByModel(userInfo, {
+					verificationCode,
+					verificationCodeDate
+				});
+
+				// @TODO: you should send the verification code to user by sms or online
+				// smsService.sendVerification(userMobile, verificationCode);
+
+				res.send({ success: true, verificationCodeDate });
+			} else {
+				res.status(400).send({
+					errorCode: 'NOTVERIFIED',
+					additionalInformation: {
+						message: 'user not verified!'
+					}
+				});
+			}
+		} catch (error) {
+			this.errorHandler(error, res);
+		}
+	}
+
+	/**
+	 * set new password
+	 * @param req
+	 * @param res
+	 */
+	async setNewPassword(req, res) {
+		try {
+			const userMobile = req.body.mobile.toLowerCase();
+			const userInfo = await this.model.findEntityByParams({ mobile: userMobile });
+			if (userInfo === null) {
+				return res.status(400).send({
+					errorCode: 'AUTHFAILED',
+					additionalInformation: {
+						message: 'username is wrong!'
+					}
+				});
+			}
+			const secureKeyDate = new Date(userInfo.verificationCodeDate);
+			secureKeyDate.setMinutes(secureKeyDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
+			if (userInfo.verificationCode === req.body.code && userInfo.verified === true && secureKeyDate.getTime() > Date.now()) {
+				const password = (req.body.password) ? sha256(req.body.password).toString() : '';
+				await this.model.updateEntityByModel(userInfo, { password });
+				res.send({ success: true });
+			} else {
+				res.status(400).send({
+					errorCode: 'INVALIDCODE',
+					additionalInformation: {
+						message: 'verification code is not valid!'
+					}
+				});
+			}
+		} catch (error) {
+			this.errorHandler(error, res);
+		}
+	}
+
+	/**
+	 * get logged in user profile detail
+	 * @param req
+	 * @param res
+	 */
+	async getProfile(req, res) {
+		try {
+			const userProfile = await this.model.findEntityByParams({ _id: req._user._id }, {
+				_id: 0, password: 0, verificationCode: 0, verificationCodeDate: 0, verified: 0
+			});
+			res.send({ message: 'success', data: userProfile });
+		} catch (error) {
+			this.errorHandler(error, res);
+		}
+	}
+
+	/**
 	 * generate verification code
 	 */
 	generateVerificationCode() {
