@@ -2,6 +2,7 @@ const express           = require('express');
 const cors              = require('cors');
 const path				= require('path');
 const logger            = require('./services/logger');
+const auth				= require('./services/authentication');
 
 
 const app = express();
@@ -21,10 +22,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// app._Auth = new auth();
+app._Auth = auth;
 // app._Captcha = reCaptcha;
-// app._E = handleError;
-// app._sms = sms;
 // app._Permissions = [];
 
 const getYear = (date) => {
