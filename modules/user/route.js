@@ -1,4 +1,5 @@
 const router = require('express').Router;
+const validator = require('./validator');
 
 /**
  * Define users end API Routes
@@ -14,16 +15,16 @@ class usersRouter {
 		const controller = require('./controller')(app);
 		const userRouter = router();
 
-		userRouter.post('/', controller.signup);
-		userRouter.post('/resendVerification', controller.resendVerification);
-		userRouter.post('/verify', controller.verify);
-		userRouter.post('/setProfile', controller.setProfile);
-		userRouter.post('/login', controller.userAuth, controller.login);
+		userRouter.post('/', validator.signup(), validator.validate, controller.signup);
+		userRouter.post('/resendVerification', validator.resendVerification(), validator.validate, controller.resendVerification);
+		userRouter.post('/verify', validator.verify(), validator.validate, controller.verify);
+		userRouter.post('/setProfile', validator.setProfile(), validator.validate, controller.setProfile);
+		userRouter.post('/login', validator.login(), validator.validate, controller.userAuth, controller.login);
 		userRouter.post('/logout', [app._Auth.isUserLoggedIn, app._Auth.logOutUser], controller.logout);
-		userRouter.post('/changePassword', [ app._Auth.isUserLoggedIn ], controller.changeUserPassword);
-		userRouter.post('/updateProfile', [ app._Auth.isUserLoggedIn], controller.updateProfile);
-		userRouter.post('/forgetPassword', controller.forgotPassword);
-		userRouter.post('/setNewPassword', controller.setNewPassword);
+		userRouter.post('/changePassword', app._Auth.isUserLoggedIn, validator.changePassword(), validator.validate, controller.changeUserPassword);
+		userRouter.post('/updateProfile', app._Auth.isUserLoggedIn, validator.updateProfile(), validator.validate, controller.updateProfile);
+		userRouter.post('/forgetPassword', validator.forgetPassword(), validator.validate, controller.forgetPassword);
+		userRouter.post('/setNewPassword', validator.setNewPassword(), validator.validate, controller.setNewPassword);
 		userRouter.get('/getProfile', [app._Auth.isUserLoggedIn], controller.getProfile);
 
 		app.use('/user', userRouter);
