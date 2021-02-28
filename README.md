@@ -59,11 +59,18 @@ Simple to use without using extra modules and trying to have everything in the s
 
 
 ## <a name="requirement">Requirement</a>
+Node.JS -> v12.18.2  
+MongoDB -> tested with 4.2.8  
+Redis Server  
 
 ## <a name="how-to-use">How to use.</a>
-
-## <a name="version-history">Vesrion History</a>
+First get a copy or clone or download the project.  
+In the root folder, copy `.env.sample` to `.env` file and modify the configuration based on your desire.  
+**Configuration explaination will be added here soon**  
+Then run `node index.js`  
 
 ## <a name="author">Author</a>
+  [Ehsan Aghaei](https://github.com/ehsanagh)
 
 ## <a name="license">License</a>
+ MIT License.
