@@ -12,7 +12,7 @@ const STATIC_HOST = process.env.STATIC_HOST;
 const JWT_LIFE_TIME = process.env.JWT_LIFE_TIME;
 const JWT_SECRET = process.env.JWT_SECRET;
 const RE_CAPTCHA_KEY = process.env.RE_CAPTCHA_KEY;
-const BACKEND_ADDR = 'https://yourdomain.com';
+const BACKEND_ADDR = process.env.BACKEND_ADDR;
 const LOG_TYPES = ['error', 'info', 'warn', 'log', 'success', 'validation'];
 const SECRET_KEY = 'j8N@bAcBq2=RnQt';
 
