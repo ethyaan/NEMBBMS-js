@@ -16,6 +16,8 @@ class userController {
 	 */
 	constructor(app) {
 
+		Object.assign(this, app);
+
 		this.model = new createModel(UserModel);
 		this.errorHandler = handleError;
 
@@ -146,6 +148,48 @@ class userController {
 		} catch (error) {
 			this.errorHandler(error, res);
 		}
+	}
+
+	/**
+	 * express middleware authenticate user with credential
+	 * @param req
+	 * @param res
+	 * @param next
+	 */
+	async userAuth(req, res, next) {
+		try {
+			const userMobile = req.body.mobile.toLowerCase();
+			const pwd = sha256(req.body.password).toString();
+			let userInfo = await this.model.findEntityByParams({ mobile: userMobile, password: pwd }, { 'password': false });
+			if (userInfo === null) {
+				return res.status(400).send({
+					errorCode: 'AUTHFAILED',
+					additionalInformation: {
+						message: 'username or password is wrong!'
+					}
+				});
+			}
+			userInfo = userInfo.toObject();
+			const token = await this.auth.generateUserToken(userInfo, config.SECRET_KEY);
+			res.set('Authorization', token);
+			res._user = userInfo;
+			next();
+		} catch (error) {
+			this.errorHandler(error, res);
+		}
+	}
+
+	/**
+	 * login method to send the user detail
+	 * @param req
+	 * @param res
+	 */
+	async login(req, res) {
+		res.send({
+			name: res._user.name || '',
+			lastName: res._user.lastName || '',
+			mobile: res._user.mobile || ''
+		});
 	}
 
 	/**
