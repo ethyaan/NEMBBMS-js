@@ -1,4 +1,4 @@
-const createModel = require('../../common/model-factory');
+const createModel = require('../../utils/model.factory');
 const { UserModel } = require('./schema');
 
 /**
@@ -12,7 +12,7 @@ class userController {
 	 */
 	constructor(app) {
 
-		this.model = createModel(UserModel);
+		this.model = new createModel(UserModel);
 	}
 
 	async createUser(req, res) {
