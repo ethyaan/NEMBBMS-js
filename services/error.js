@@ -1,4 +1,4 @@
-import logger from './logger';
+const logger = require('./logger');
 
 const createErrorObject = (options, additionalInfo) => {
 	const additionalInformation = { message: options.msg };
