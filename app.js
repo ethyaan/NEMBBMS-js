@@ -23,8 +23,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app._Auth = auth;
-// app._Captcha = reCaptcha;
-// app._Permissions = [];
 
 const getYear = (date) => {
 	return `${date.getFullYear()}`;
