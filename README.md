@@ -12,9 +12,8 @@ Table of content:
 2. [How it works.](#how-it-works)
 3. [Requirement](#requirement)
 4. [How to use.](#how-to-use)
-5. [Vesrion History](#version-history)
-6. [Author](#Author)
-7. [License](#License)
+5. [Author](#Author)
+6. [License](#License)
 
 ## <a name="the-idea">The Idea</a>
   At the initial stage of thinking about the project, we mostly think how we gonna create a structure for our backend app,
