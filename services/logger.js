@@ -1,5 +1,5 @@
 const util = require('util');
-const CONFIG = require('../config');
+const config = require('../config');
 /**
  * create logger class for debug purposes
  * @type Class
@@ -9,7 +9,7 @@ const loggerModule = class logger {
 	 * set allowed log level for showing
 	 */
 	constructor() {
-		this._types = CONFIG.logTypes;
+		this._types = config.LOG_TYPES;
 	}
 
 	/**
