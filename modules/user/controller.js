@@ -2,6 +2,8 @@ const createModel = require('../../utils/model.factory');
 const { UserModel } = require('./schema');
 const { handleError } = require('../../services/error');
 const _ = require('lodash');
+const sha256 = require('crypto-js/sha256');
+const config = require('../../config');
 
 /**
  * Define Sample module
@@ -16,6 +18,20 @@ class userController {
 
 		this.model = new createModel(UserModel);
 		this.errorHandler = handleError;
+
+		this.contextBinding.apply(this, [[
+			'signup', 'resendVerification', 'verify', 'setProfile'
+		]]);
+	}
+
+	/**
+	 * bind this (current execution context) ro each method
+	 * @param {*} methods 
+	 */
+	contextBinding(methods) {
+		methods.forEach(element => {
+			this[element] = this[element].bind(this);
+		});
 	}
 
 	async signup(req, res) {
@@ -52,7 +68,7 @@ class userController {
 		try {
 			const userMobile = req.body.mobile.toLowerCase();
 			const userInfo = await this.model.findEntityByParams({ mobile: userMobile });
-			if (userInfo.verified) {
+			if (_.get(userInfo, 'verified') || !userInfo) {
 				res.send({ status: 'failed' });
 			} else {
 				const vcDate = new Date(userInfo.verificationCodeDate);
@@ -65,7 +81,8 @@ class userController {
 						verificationCode,
 						verificationCodeDate
 					});
-					this.sms.sendVerification(userMobile, verificationCode);
+					// @TODO: you should send the verification code to user by sms or online
+					// smsService.sendVerification(userMobile, verificationCode);
 				}
 				res.send({ status: 'success', verificationCodeDate });
 			}

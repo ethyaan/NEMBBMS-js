@@ -15,6 +15,9 @@ class usersRouter {
 		const userRouter = router();
 
 		userRouter.post('/', controller.signup);
+		userRouter.post('/resendVerification', controller.resendVerification);
+		userRouter.post('/verify', controller.verify);
+		userRouter.post('/setProfile', controller.setProfile);
 
 		app.use('/user', userRouter);
 
