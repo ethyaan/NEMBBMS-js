@@ -1,5 +1,5 @@
 const redis = require('redis');
-const Jwtr = require('jwt-redis');
+const Jwtr = require('jwt-redis').default;
 const logger = require('./logger');
 const config = require('../config');
 

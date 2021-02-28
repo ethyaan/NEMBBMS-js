@@ -40,7 +40,7 @@ const connectMongoDB = () => {
 const startServer = async () => {
 	try {
 		await connectMongoDB();
-		// await app._Auth.connect();
+		await app._Auth.connect();
 		app.listen(config.PORT, () => {
 			console.log(`App listening on port ${config.PORT}`);
 		});
