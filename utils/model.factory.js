@@ -10,7 +10,7 @@ class MasterModel {
 	 */
 	constructor(model) {
 		this.model = model;
-		this.modelName = model.collection?.collectionName;
+		this.modelName = model.collection.collectionName;
 	}
 
 	/**
