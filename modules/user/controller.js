@@ -22,7 +22,10 @@ class userController {
 		this.errorHandler = handleError;
 
 		this.contextBinding.apply(this, [[
-			'signup', 'resendVerification', 'verify', 'setProfile'
+			'signup',			'resendVerification',	'verify',
+			'setProfile',		'userAuth',				'changeUserPassword',
+			'updateProfile',	'forgetPassword',		'setNewPassword',
+			'getProfile'
 		]]);
 	}
 
@@ -250,7 +253,7 @@ class userController {
 	 * @param req
 	 * @param res
 	 */
-	async forgotPassword(req, res) {
+	async forgetPassword(req, res) {
 		try {
 			const userMobile = req.body.mobile.toLowerCase();
 			const userInfo = await this.model.findEntityByParams({ mobile: userMobile }, { password: false });
