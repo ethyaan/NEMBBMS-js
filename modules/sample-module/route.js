@@ -1,4 +1,4 @@
-const router = require('express').Router;
+import { Router } from 'express';
 
 /**
  * Define Sample module
@@ -11,15 +11,14 @@ class sampleRouter {
 	 */
 	constructor(app) {
 
-		const controller = require('./controller')(app);
-		const sampleRouter = router();
+		// const controller = require('./controller')(app);
+		const sampleRouter = Router();
 
-		sampleRouter.get('/', controller.sampleAPI);
+		// sampleRouter.get('/', controller.sampleAPI);
 
 		app.use('/sample', sampleRouter);
 
 	}
 
 }
-
-module.exports = (app) => new sampleRouter(app);
+export default (app) => new sampleRouter(app);
