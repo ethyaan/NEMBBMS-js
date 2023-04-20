@@ -1,52 +1,50 @@
-const express           = require('express');
-const path              = require('path');
-const dotenv            = require('dotenv').config({ path: path.join(__dirname, './.env') });
-const mongoose          = require('mongoose');
-const url               = require('url');
-const config            = require('./config');
-const logger            = require('./services/logger');
-const app               = require('./app');
-
-const mongoPassword = encodeURIComponent(config.MONGODB_PASSWORD);
-const mongoDBConnectionURI = config.MONGODB_URI.replace('_pwd_', mongoPassword);
-const mongoHost = new url.URL(mongoDBConnectionURI).host;
+import path from 'path';
+import * as dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '.env') });
+import mongoose from 'mongoose';
+import * as url from 'url';
+import config from './config.js';
+import { Logger } from './services/logger.js';
+import app from './app.js';
 
 const connectMongoDB = () => {
 
 	const connectionOptions = {
-		poolSize: 50,
-		keepAlive: 120,
-		useNewUrlParser: true,
 		autoIndex: false,
 		connectTimeoutMS: 10000,
-		socketTimeoutMS: 45000,
+		socketTimeoutMS: 60000,
 		family: 4,
-		useFindAndModify: false,
-		useUnifiedTopology: true
+		dbName: config.DBNAME
 	};
+	const mondoDBURI = config.MONGO_URI ?? '';
+	const mongoHost = new url.URL(mondoDBURI).host;
+	mongoose.set('strictQuery', true);
 
 	return new Promise((resolve, reject) => {
-		mongoose.connect(mongoDBConnectionURI, connectionOptions, async (err) => {
+		mongoose.connect(mondoDBURI, connectionOptions, async (err) => {
 			if (err) {
-				logger.error('Error connecting mongoDB => ', err);
-				return reject(true);
+				Logger.error('Error connecting mongoDB => ', err);
+				reject(true);
 			}
-			logger.success(`Connected to mongoDB at ${mongoHost}`);
-			return resolve(true);
+			Logger.success(`Connected to mongoDB at ${mongoHost}`);
+			resolve(true);
 		});
 	});
 };
 
 const startServer = async () => {
 	try {
-		await connectMongoDB();
-		await app._Auth.connect();
+		// await connectMongoDB();
+		// await app._Auth.connect();
 		app.listen(config.PORT, () => {
-			console.log(`App listening on port ${config.PORT}`);
+			Logger.success(`App listening on port ${config.PORT}`);
 		});
 	} catch (error) {
 		// eslint-disable-next-line no-console
-		console.error(`Could not start the app: `, error);
+		Logger.error(`Could not start the app: `, error);
 	}
 };
 
