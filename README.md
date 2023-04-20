@@ -1,4 +1,5 @@
-# nodejs-backend-structure-modular-JS  
+# NEMBBMS
+# NodeJS ExpressJS MongoDB Boilerplate Backend Modular Structure - pure JS
 [![forthebadge made-with-javascript](http://ForTheBadge.com/images/badges/made-with-javascript.svg)](https://www.javascript.com/)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/ehsanagh/nodejs-backend-structure-modular-JS/graphs/commit-activity)
@@ -23,11 +24,9 @@ Table of content:
 6. [License](#License)
 
 ## <a name="the-idea">The Idea</a>
-  At the initial stage of thinking about the project, we mostly think how we gonna create a structure for our backend app,
-basically there are few things which we most care about, being modular, and have well scalable structure for developing rest api, having a clean code and many more options based on our need.
-so based in this **Idea** I came up with this solution to my self that I create some thing that is modular and ready to use without extra codes.
-Simple to use without using extra modules and trying to have everything in the structre based on the map(soon I add photo of that map).
+  When considering the project, our primary focus was creating a solid structure for the backend application. We prioritized having a modular, decoupled code structure, as well as a scalable structure for developing REST APIs. We also emphasized clean code and best practices for implementation and writing code.
 
+  Based on these goals, I developed a solution that is both modular and readily usable, without the need for extra code. It is simple to use and has a clean structure that enhances the overall user experience.
 
 
 ## <a name="how-it-works">How it works</a>
