@@ -1,5 +1,5 @@
-const util = require('util');
-const config = require('../config');
+import util from 'util';
+import config from '../config.js';
 /**
  * create logger class for debug purposes
  * @type Class
@@ -11,13 +11,19 @@ const loggerModule = class logger {
 	constructor() {
 		this._types = config.LOG_TYPES;
 	}
+	_types;
 
 	/**
-	 * implement toString Method
-	 * @returns {string}
+	 * log text with the color
+	 * @param color
+	 * @param text
+	 * @private
 	 */
-	toString() {
-		return `(${this._types})`;
+	_colorizedLog(color, text) {
+		const codes = util.inspect.colors[color];
+		Array.prototype.unshift.call(text, `\x1b[${codes[0]}m`);
+		Array.prototype.push.call(text, `\x1b[${codes[1]}m`);
+		console.log.apply(console, text);
 	}
 
 	/**
@@ -73,19 +79,6 @@ const loggerModule = class logger {
 	}
 
 	/**
-	 * log text with the color
-	 * @param color
-	 * @param text
-	 * @private
-	 */
-	static _colorizedLog(color, text) {
-		const codes = util.inspect.colors[color];
-		Array.prototype.unshift.call(text, `\x1b[${codes[0]}m`);
-		Array.prototype.push.call(text, `\x1b[${codes[1]}m`);
-		console.log.apply(console, text);
-	}
-
-	/**
 	 * prepare argument for logging , check if logged valid
 	 * @param color
 	 * @param args
@@ -94,9 +87,9 @@ const loggerModule = class logger {
 	 */
 	_processLog(type, color, args) {
 		if (this._checkLevel(type)) {
-			this.constructor._colorizedLog(color, args);
+			this._colorizedLog(color, args);
 		}
 	}
 };
 
-module.exports = new loggerModule();
+export const Logger = new loggerModule();
