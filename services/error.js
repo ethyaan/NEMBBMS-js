@@ -1,25 +1,27 @@
-const logger = require('./logger');
+import { Logger } from './logger.js';
 
-const createErrorObject = (options, additionalInfo) => {
-	const additionalInformation = { message: options.msg };
-	Object.assign(additionalInformation, additionalInfo || {});
+const createErrorObject = ({ options, additionalInfo }) => {
 	return {
-		responseCode: options.statusCode || 422,
-		errorObj: {
-			errorCode: options.errorCode || 'GeneralError',
-			additionalInformation
-		}
+		responseCode: options.statusCode || 418,
+		errorCode: options.errorCode || 'GeneralError',
+		errorMessage: options.msg,
+		additionalInfo
 	};
 };
 
-const createError = (options, additionalInfo) => {
-	return Promise.reject(createErrorObject(options, additionalInfo));
+/**
+ * create rejected promise error to trigger catch block
+ * @param input
+ * @returns
+ */
+const createError = (input) => {
+	return Promise.reject(createErrorObject(input));
 };
 
 const handleError = (error, res) => {
-	const errorOutput = error.errorObj || createErrorObject({ msg: 'Error while performing your request' }).errorObj;
-	logger.error('Catch Handler => ', error);
+	const errorOutput = (error.errorMessage) ? error : createErrorObject({ options: { msg: 'Error while processing your request' } });
+	Logger.error('Error Handler => ', error);
 	res.status(error.responseCode || 500).send(errorOutput);
 };
 
-module.exports = { createErrorObject, createError, handleError };
+export { createErrorObject, createError, handleError };
