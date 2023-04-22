@@ -1,20 +1,20 @@
 import { body } from 'express-validator';
-import { V, mobileValidator, codeValidator, nameValidator, lastNameValidator, passwordValidaotr } from '../../common/index.js';
+import { V, emailValidator ,mobileValidator, codeValidator, nameValidator, lastNameValidator, passwordValidaotr } from '../../common/index.js';
 
 
 export default {
     signup: () => {
-        return VHOC([mobileValidator]);
+        return VHOC([emailValidator]);
     },
     resendVerification: () => {
-        return V([mobileValidator]);
+        return V([emailValidator]);
     },
     verify: () => {
-        return V([mobileValidator, codeValidator]);
+        return V([emailValidator, codeValidator]);
     },
     setProfile: () => {
         return V([
-            mobileValidator,
+            emailValidator,
             codeValidator,
             nameValidator,
             lastNameValidator,
@@ -22,7 +22,7 @@ export default {
         ]);
     },
     login: () => {
-        return V([mobileValidator, passwordValidaotr]);
+        return V([emailValidator, passwordValidaotr]);
     },
     changePassword: () => {
         return V([
@@ -35,9 +35,9 @@ export default {
         return V([nameValidator, lastNameValidator]);
     },
     forgetPassword: () => {
-        return V([mobileValidator]);
+        return V([emailValidator]);
     },
     setNewPassword: () => {
-        return V([mobileValidator, codeValidator, passwordValidaotr]);
+        return V([emailValidator, codeValidator, passwordValidaotr]);
     }
 };
