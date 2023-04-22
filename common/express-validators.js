@@ -20,6 +20,16 @@ export const validate = (req, res, next) => {
     });
 };
 
+
+/**
+ * A higher Order Function to add validation chech function ath the end of the chain
+ * @param validation - array of validators
+ * @returns 
+ */
+export const V = (validation) => {
+    return [validation, validate.validate];
+}
+
 export const mobilePattern = /^\+\d{1,3}-\d{9,10}$/;
 export const mobileValidator = body('mobile').matches(mobilePattern, 'g').withMessage('please enter valid mobile number');
 
