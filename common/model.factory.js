@@ -152,4 +152,4 @@ class MasterModel {
 	}
 }
 
-export default MasterModel;
+export const ModelFactory = MasterModel;
