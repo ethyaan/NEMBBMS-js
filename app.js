@@ -23,6 +23,10 @@ app.use(cors({
 
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+app.get('/health', (request, response) => {
+	return response.send('healthy');
+});
+
 modules(app);
 
 export default app;
