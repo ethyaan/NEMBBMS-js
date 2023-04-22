@@ -1,9 +1,8 @@
-// const createModel = require('../../utils/model.factory');
-// const { UserModel } = require('./schema');
-// const { handleError } = require('../../services/error');
-// const _ = require('lodash');
+import { ModelFactory, handleError } from '../../common/index.js';
+import { UserModel } from './schema.js';
+import _ from 'lodash';
 // const sha256 = require('crypto-js/sha256');
-// const config = require('../../config');
+import config from '../../config.js';
 
 /**
  * Define Sample module
@@ -18,25 +17,25 @@ class userController {
 
         Object.assign(this, app);
 
-        this.model = new createModel(UserModel);
+        this.model = new ModelFactory(UserModel);
         this.errorHandler = handleError;
     }
 
     signup = async (req, res) => {
         try {
-            const userEmail = req.body.mobile.toLowerCase();
-            // @TODO: we can and we better have google recaptcha check here
+            const userEmail = req.body.email.toLowerCase();
+
+            // POINT: Better to include google recaptcha here
             const verificationCode = this.generateVerificationCode();
             const newUser = await this.model.createEntity({
-                mobile: userEmail,
+                email: userEmail,
                 verificationCode
             });
-            // @TODO: you should send the verification code to user by sms or online
-            // smsService.sendVerification(userMobile, verificationCode);
-
+            // @TODO: you should send the verification code to user by email
             res.send({ username: newUser.mobile, verificationCodeDate: newUser.verificationCodeDate });
         } catch (error) {
             const errorMessage = _.get(error, 'errorObj.additionalInformation.message', false);
+            // if we get duplicate error message from mongoose, we handle different response
             if (errorMessage && errorMessage.includes('duplicate key error')) {
                 const userMobile = req.body.mobile.toLowerCase();
                 const user = await this.model.findEntityByParams({ mobile: userMobile }, { verified: true });
@@ -329,12 +328,12 @@ class userController {
     // 		}
     // }
 
-    // 	/**
-    // 	 * generate verification code
-    // 	 */
-    // 	generateVerificationCode() {
-    // 		return Math.floor(100000 + Math.random() * 900000);
-    // 	}
+    /**
+     * generate a 6 digit verification code
+     */
+    generateVerificationCode() {
+        return Math.floor(100000 + Math.random() * 900000);
+    }
 
 }
 

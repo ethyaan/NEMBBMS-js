@@ -1,4 +1,4 @@
-import { Logger, createError } from './index';
+import { Logger, createError } from './index.js';
 
 /**
  * Master Mongo Model Wrapper
