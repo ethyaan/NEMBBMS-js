@@ -1,42 +1,43 @@
 import { body } from 'express-validator';
-import { mobileValidator, codeValidator, nameValidator, lastNameValidator, passwordValidaotr } from '../../common/index.js';
+import { V, mobileValidator, codeValidator, nameValidator, lastNameValidator, passwordValidaotr } from '../../common/index.js';
+
 
 export default {
     signup: () => {
-        return [mobileValidator];
+        return VHOC([mobileValidator]);
     },
     resendVerification: () => {
-        return [mobileValidator];
+        return V([mobileValidator]);
     },
     verify: () => {
-        return [mobileValidator, codeValidator];
+        return V([mobileValidator, codeValidator]);
     },
     setProfile: () => {
-        return [
+        return V([
             mobileValidator,
             codeValidator,
             nameValidator,
             lastNameValidator,
             passwordValidaotr
-        ];
+        ]);
     },
     login: () => {
-        return [mobileValidator, passwordValidaotr];
+        return V([mobileValidator, passwordValidaotr]);
     },
     changePassword: () => {
-        return [
+        return V([
             passwordValidaotr,
             body('new').exists({ checkFalsy: true, checkNull: true }).withMessage('please enter valid password')
                 .isLength({ min: 6 }).withMessage('password must be atleast 6 character')
-        ];
+        ]);
     },
     updateProfile: () => {
-        return [nameValidator, lastNameValidator];
+        return V([nameValidator, lastNameValidator]);
     },
     forgetPassword: () => {
-        return [mobileValidator];
+        return V([mobileValidator]);
     },
     setNewPassword: () => {
-        return [mobileValidator, codeValidator, passwordValidaotr];
+        return V([mobileValidator, codeValidator, passwordValidaotr]);
     }
 };
