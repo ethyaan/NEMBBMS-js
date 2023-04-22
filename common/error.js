@@ -1,5 +1,10 @@
 import { Logger } from './logger.js';
 
+/**
+ * create common error object
+ * @param {*} param0 
+ * @returns 
+ */
 const createErrorObject = ({ options, additionalInfo }) => {
 	return {
 		responseCode: options.statusCode || 418,

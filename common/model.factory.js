@@ -1,10 +1,12 @@
-const logger = require('../services/logger');
-const { createError } = require('../services/error');
+import { Logger, createError } from './index.js';
 
+/**
+ * Master Mongo Model Wrapper
+ */
 class MasterModel {
 
 	model = null;
-	modelName = '';
+	modelName = ``;
 	/**
 	 * implement constructor method
 	 */
@@ -30,10 +32,10 @@ class MasterModel {
 		if (error) {
 			const parsedError = this.mongooseErrorHandler(error);
 			const options = { statusCode: 500, msg: parsedError, errorCode: 'DBERROR' };
-			logger.info(`DB=>(${this.modelName})Model=>createEntity : ${parsedError}`);
-			return createError(options, {});
+			Logger.info(`DB=>(${this.modelName})Model=>createEntity : ${parsedError}`);
+			return createError({ options, additionalInfo: {} });
 		}
-		logger.success(`DB=>(${this.modelName})Model=>createEntity : new newEntity created `, newEntity);
+		Logger.success(`DB=>(${this.modelName})Model=>createEntity : new newEntity created `, newEntity);
 		return Promise.resolve(newEntity);
 	}
 
@@ -55,10 +57,10 @@ class MasterModel {
 		const { error, data } = await this.asyncWrapper(preparedQuery.exec());
 		if (error) {
 			const parsedError = this.mongooseErrorHandler(error);
-			logger.error(`DB=>${this.modelName}=>findEntityByParams : `, parsedError);
-			return createError({ msg: parsedError, statusCode: 500, errorCode: 'DBERROR' });
+			Logger.error(`DB=>${this.modelName}=>findEntityByParams : `, parsedError);
+			return createError({ options: { msg: parsedError, statusCode: 500, errorCode: 'DBERROR' } });
 		} else {
-			logger.log(`DB=>${this.modelName}=>findEntityByParams : `, data);
+			Logger.log(`DB=>${this.modelName}=>findEntityByParams : `, data);
 			return Promise.resolve(data);
 		}
 	}
@@ -74,18 +76,18 @@ class MasterModel {
 		const { error: countError, data: count } = await this.asyncWrapper(this.model.countDocuments(query).exec());
 		if (countError) {
 			const parsedError = this.mongooseErrorHandler(countError);
-			logger.error(`DB=>${this.modelName}=>findEntityByParamsPagination=>countDocuments : `, parsedError);
+			Logger.error(`DB=>${this.modelName}=>findEntityByParamsPagination=>countDocuments : `, parsedError);
 			return createError({ msg: parsedError, statusCode: 500, errorCode: 'DBERROR' });
 		}
 		const skip = (pagination.pageNumber - 1) * pagination.limit;
 		const { error, data } = await this.asyncWrapper(this.model.find(query, projection || {}, options || {}).skip(skip).limit(pagination.limit).lean());
 		if (error) {
 			const parsedError = this.mongooseErrorHandler(error);
-			logger.error(`DB=>${this.modelName}=>findEntityByParamsPagination=>find : `, parsedError);
+			Logger.error(`DB=>${this.modelName}=>findEntityByParamsPagination=>find : `, parsedError);
 			return createError({ msg: parsedError, statusCode: 500, errorCode: 'DBERROR' });
 		}
 		const result = { totalRecords: count, data };
-		logger.log(`DB=>${this.modelName}=>findEntityByParamsPagination : `, JSON.stringify(result));
+		Logger.log(`DB=>${this.modelName}=>findEntityByParamsPagination : `, JSON.stringify(result));
 		return Promise.resolve(result);
 	}
 
@@ -99,10 +101,10 @@ class MasterModel {
 		const { error, data } = await this.asyncWrapper(model.save());
 		if (error) {
 			const parsedError = this.mongooseErrorHandler(error);
-			logger.error(`DB=>${this.modelName}=>updateEntityByModel: `, error);
+			Logger.error(`DB=>${this.modelName}=>updateEntityByModel: `, error);
 			return createError({ msg: parsedError, statusCode: 500, errorCode: 'DBERROR' });
 		}
-		logger.log(`DB=>${this.modelName}=>updateEntityByModel : `, JSON.stringify(data));
+		Logger.log(`DB=>${this.modelName}=>updateEntityByModel : `, JSON.stringify(data));
 		return Promise.resolve(data);
 	}
 
@@ -115,10 +117,10 @@ class MasterModel {
 		const { error, data } = await this.asyncWrapper(this.model.findOneAndRemove(query, options || {}).exec());
 		if (error) {
 			const parsedError = this.mongooseErrorHandler(error);
-			logger.error(`Model=>${this.modelName}=>deleteEntity : `, parsedError);
+			Logger.error(`Model=>${this.modelName}=>deleteEntity : `, parsedError);
 			return createError({ msg: parsedError, statusCode: 500, errorCode: 'DBERROR' });
 		} else {
-			logger.log(`DB=>${this.modelName}=>deleteEntity : `, data);
+			Logger.log(`DB=>${this.modelName}=>deleteEntity : `, data);
 			return Promise.resolve(data);
 		}
 	}
@@ -148,7 +150,6 @@ class MasterModel {
 			return err.toString();
 		}
 	}
-
 }
 
-module.exports = MasterModel;
+export const ModelFactory = MasterModel;

@@ -1,5 +1,7 @@
-const env = process.env;
+import dotenv from 'dotenv';
+dotenv.config();
 
+const env = process.env;
 export default {
 	LOG_TYPES: ['error', 'info', 'warn', 'log', 'success', 'validation'],
 	PORT: env.PORT,

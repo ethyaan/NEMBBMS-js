@@ -1,13 +1,7 @@
-import path from 'path';
-import * as dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.join(__dirname, '.env') });
 import mongoose from 'mongoose';
 import * as url from 'url';
 import config from './config.js';
-import { Logger } from './services/logger.js';
+import { Logger } from './common/index.js';
 import app from './app.js';
 
 const connectMongoDB = () => {

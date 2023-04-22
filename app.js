@@ -1,11 +1,11 @@
 import express from 'express';
 import cors from 'cors';
-// import expressValidator from 'express-validator';
+import expressValidator from 'express-validator';
 // import swaggerUi from 'swagger-ui-express';
 // import swaggerDocument from './swagger.json';
 
 import modules from './modules/index.js';
-import { handleError } from './services/error.js';
+import { handleError } from './common/index.js';
 
 const app = express();
 
@@ -22,6 +22,10 @@ app.use(cors({
 }));
 
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+app.get('/health', (request, response) => {
+	return response.send('healthy');
+});
 
 modules(app);
 
