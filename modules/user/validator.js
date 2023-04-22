@@ -4,7 +4,7 @@ import { V, emailValidator ,mobileValidator, codeValidator, nameValidator, lastN
 
 export default {
     signup: () => {
-        return VHOC([emailValidator]);
+        return V([emailValidator]);
     },
     resendVerification: () => {
         return V([emailValidator]);

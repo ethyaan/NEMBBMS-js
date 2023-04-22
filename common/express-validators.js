@@ -27,7 +27,7 @@ export const validate = (req, res, next) => {
  * @returns 
  */
 export const V = (validation) => {
-    return [validation, validate.validate];
+    return [validation, validate];
 }
 
 export const mobilePattern = /^\+\d{1,3}-\d{9,10}$/;
