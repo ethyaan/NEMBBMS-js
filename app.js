@@ -5,7 +5,7 @@ import cors from 'cors';
 // import swaggerDocument from './swagger.json';
 
 import modules from './modules/index.js';
-import { handleError } from './services/error.js';
+import { handleError } from './common/index.js';
 
 const app = express();
 

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import * as url from 'url';
 import config from './config.js';
-import { Logger } from './services/logger.js';
+import { Logger } from './common/index.js';
 import app from './app.js';
 
 const connectMongoDB = () => {
