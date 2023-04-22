@@ -33,6 +33,8 @@ export const V = (validation) => {
 export const mobilePattern = /^\+\d{1,3}-\d{9,10}$/;
 export const mobileValidator = body('mobile').matches(mobilePattern, 'g').withMessage('please enter valid mobile number');
 
+export const emailBodyValidator = body('email').isEmail().withMessage('please enter valid email address');
+
 export const codeValidator = body('code').exists({ checkFalsy: true, checkNull: true }).withMessage('code is not valid');
 
 export const passwordValidaotr = body('password').exists({ checkFalsy: true, checkNull: true })
