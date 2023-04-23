@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import expressValidator from 'express-validator';
 // import swaggerUi from 'swagger-ui-express';
 // import swaggerDocument from './swagger.json';
 

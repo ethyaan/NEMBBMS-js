@@ -22,23 +22,25 @@ class userController {
     }
 
     signup = async (req, res) => {
-        try {
-            const userEmail = req.body.email.toLowerCase();
 
-            // POINT: Better to include google recaptcha here
+        const userEmail = req.body.email.toLowerCase();
+
+        try {
+
+            // @todo: #8 Better to include google recaptcha here
             const verificationCode = this.generateVerificationCode();
             const newUser = await this.model.createEntity({
                 email: userEmail,
                 verificationCode
             });
-            // @TODO: you should send the verification code to user by email
-            res.send({ username: newUser.mobile, verificationCodeDate: newUser.verificationCodeDate });
+            // @TODO: #3 you should send the verification code to user by email
+            res.send({ username: newUser.email, verificationCodeDate: newUser.verificationCodeDate });
         } catch (error) {
             const errorMessage = _.get(error, 'errorObj.additionalInformation.message', false);
             // if we get duplicate error message from mongoose, we handle different response
             if (errorMessage && errorMessage.includes('duplicate key error')) {
-                const userMobile = req.body.mobile.toLowerCase();
-                const user = await this.model.findEntityByParams({ mobile: userMobile }, { verified: true });
+                const userEmail = req.body.email.toLowerCase();
+                const user = await this.model.findEntityByParams({ email: userEmail }, { verified: true });
                 this.errorHandler(createErrorObject({ msg: 'user Already Registered.' }, { verified: user.verified }), res);
             } else {
                 this.errorHandler(error, res);
@@ -68,7 +70,7 @@ class userController {
                         verificationCode,
                         verificationCodeDate
                     });
-                    // @TODO: Send Verification Email
+                    // @TODO: #4 Send Verification Email
                 }
                 res.send({ status: 'success', verificationCodeDate });
             }
