@@ -46,37 +46,36 @@ class userController {
         }
     }
 
-    // 	/**
-    // 	 * resend verification code, in case user didn't received the code
-    // 	 * @param {*} req 
-    // 	 * @param {*} res 
-    // 	 */
-    // 	async resendVerification(req, res) {
-    // 		try {
-    // 			const userMobile = req.body.mobile.toLowerCase();
-    // 			const userInfo = await this.model.findEntityByParams({ mobile: userMobile });
-    // 			if (_.get(userInfo, 'verified') || !userInfo) {
-    // 				res.send({ status: 'failed' });
-    // 			} else {
-    // 				const vcDate = new Date(userInfo.verificationCodeDate);
-    // 				vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
-    // 				let verificationCodeDate = userInfo.verificationCodeDate;
-    // 				if (vcDate.getTime() < Date.now()) {
-    // 					const verificationCode = this.generateVerificationCode();
-    // 					verificationCodeDate = new Date();
-    // 					await this.model.updateEntityByModel(userInfo, {
-    // 						verificationCode,
-    // 						verificationCodeDate
-    // 					});
-    // 					// @TODO: you should send the verification code to user by sms or online
-    // 					// smsService.sendVerification(userMobile, verificationCode);
-    // 				}
-    // 				res.send({ status: 'success', verificationCodeDate });
-    // 			}
-    // 		} catch (error) {
-    // 			this.errorHandler(error, res);
-    // 		}
-    // 	}
+    /**
+     * resend verification code, in case user didn't received the code
+     * @param {*} req 
+     * @param {*} res 
+     */
+    async resendVerification(req, res) {
+        try {
+            const userEmail = req.body.email.toLowerCase();
+            const userInfo = await this.model.findEntityByParams({ email: userEmail });
+            if (_.get(userInfo, 'verified') || !userInfo) {
+                res.send({ status: 'failed' });
+            } else {
+                const vcDate = new Date(userInfo.verificationCodeDate);
+                vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
+                let verificationCodeDate = userInfo.verificationCodeDate;
+                if (vcDate.getTime() < Date.now()) {
+                    const verificationCode = this.generateVerificationCode();
+                    verificationCodeDate = new Date();
+                    await this.model.updateEntityByModel(userInfo, {
+                        verificationCode,
+                        verificationCodeDate
+                    });
+                    // @TODO: Send Verification Email
+                }
+                res.send({ status: 'success', verificationCodeDate });
+            }
+        } catch (error) {
+            this.errorHandler(error, res);
+        }
+    }
 
     // 	/**
     // 	 * verify the email by code and generate verificationCode to set password
