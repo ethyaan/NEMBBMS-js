@@ -18,7 +18,7 @@ class usersRouter {
 
 		userRouter.post('/', [...validator.signup()], userCtrl.signup);
 		userRouter.post('/resendVerification', [...validator.resendVerification()], userCtrl.resendVerification);
-		// userRouter.post('/verify', validator.verify(), validator.validate, controller.verify);
+		userRouter.post('/verify', [...validator.verify()], userCtrl.verify);
 		// userRouter.post('/setProfile', validator.setProfile(), validator.validate, controller.setProfile);
 		// userRouter.post('/login', validator.login(), validator.validate, controller.userAuth, controller.login);
 		// userRouter.post('/logout', [app._Auth.isUserLoggedIn, app._Auth.logOutUser], controller.logout);

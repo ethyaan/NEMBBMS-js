@@ -79,32 +79,32 @@ class userController {
         }
     }
 
-    // 	/**
-    // 	 * verify the email by code and generate verificationCode to set password
-    // 	 * @param req
-    // 	 * @param res
-    // 	 */
-    // 	async verify(req, res) {
-    // 		try {
-    // 			const code = req.body.code;
-    // 			const userInfo = await this.model.findEntityByParams({
-    // 				mobile: req.body.mobile,
-    // 				verificationCode: code
-    // 			});
-    // 			if (userInfo === null) {
-    // 				return res.send({ verified: false });
-    // 			}
-    // 			const vcDate = new Date(userInfo.verificationCodeDate);
-    // 			vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
-    // 			if (userInfo.verificationCode === code && vcDate.getTime() > Date.now()) {
-    // 				res.send({ verified: true, mobile: userInfo.mobile, code: userInfo.verificationCode });
-    // 			} else {
-    // 				res.send({ verified: false });
-    // 			}
-    // 		} catch (error) {
-    // 			this.errorHandler(error, res);
-    // 		}
-    // 	}
+    /**
+     * verify the email by code and generate verificationCode to set password
+     * @param req
+     * @param res
+     */
+    async verify(req, res) {
+        try {
+            const code = req.body.code;
+            const userInfo = await this.model.findEntityByParams({
+                email: req.body.email.toLowerCase(),
+                verificationCode: code
+            });
+            if (userInfo === null) {
+                return res.send({ verified: false });
+            }
+            const vcDate = new Date(userInfo.verificationCodeDate);
+            vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
+            if (userInfo.verificationCode === code && vcDate.getTime() > Date.now()) {
+                res.send({ verified: true, email: userInfo.email, code: userInfo.verificationCode });
+            } else {
+                res.send({ verified: false });
+            }
+        } catch (error) {
+            this.errorHandler(error, res);
+        }
+    }
 
     // 	/**
     // 	 * set user profile
