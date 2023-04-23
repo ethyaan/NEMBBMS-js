@@ -15,11 +15,11 @@ class usersRouter {
 
 		const userCtrl = controller(app);
 		const userRouter = Router();
-		
+
 		userRouter.post('/', [...validator.signup()], userCtrl.signup);
-		// userRouter.post('/resendVerification', validator.resendVerification(), validator.validate, controller.resendVerification);
-		// userRouter.post('/verify', validator.verify(), validator.validate, controller.verify);
-		// userRouter.post('/setProfile', validator.setProfile(), validator.validate, controller.setProfile);
+		userRouter.post('/resendVerification', [...validator.resendVerification()], userCtrl.resendVerification);
+		userRouter.post('/verify', [...validator.verify()], userCtrl.verify);
+		
 		// userRouter.post('/login', validator.login(), validator.validate, controller.userAuth, controller.login);
 		// userRouter.post('/logout', [app._Auth.isUserLoggedIn, app._Auth.logOutUser], controller.logout);
 		// userRouter.post('/changePassword', app._Auth.isUserLoggedIn, validator.changePassword(), validator.validate, controller.changeUserPassword);

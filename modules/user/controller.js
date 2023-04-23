@@ -21,24 +21,31 @@ class userController {
         this.errorHandler = handleError;
     }
 
-    signup = async (req, res) => {
-        try {
-            const userEmail = req.body.email.toLowerCase();
+    signup = async ({ body: { email, name, lastName, password } }, res) => {
 
-            // POINT: Better to include google recaptcha here
+        const userEmail = email.toLowerCase();
+        const userName = name.toLowerCase();
+        const userLastname = lastName.toLowerCase();
+
+        try {
+
+            // @todo: #8 Better to include google recaptcha here
             const verificationCode = this.generateVerificationCode();
             const newUser = await this.model.createEntity({
                 email: userEmail,
-                verificationCode
+                name: userName,
+                lastName: userLastname,
+                verificationCode,
+                password
             });
-            // @TODO: you should send the verification code to user by email
-            res.send({ username: newUser.mobile, verificationCodeDate: newUser.verificationCodeDate });
+            // @TODO: #3 you should send the verification code to user by email
+            res.send({ username: newUser.email, verificationCodeDate: newUser.verificationCodeDate });
         } catch (error) {
             const errorMessage = _.get(error, 'errorObj.additionalInformation.message', false);
             // if we get duplicate error message from mongoose, we handle different response
             if (errorMessage && errorMessage.includes('duplicate key error')) {
-                const userMobile = req.body.mobile.toLowerCase();
-                const user = await this.model.findEntityByParams({ mobile: userMobile }, { verified: true });
+                const userEmail = req.body.email.toLowerCase();
+                const user = await this.model.findEntityByParams({ email: userEmail }, { verified: true });
                 this.errorHandler(createErrorObject({ msg: 'user Already Registered.' }, { verified: user.verified }), res);
             } else {
                 this.errorHandler(error, res);
@@ -46,64 +53,63 @@ class userController {
         }
     }
 
-    // 	/**
-    // 	 * resend verification code, in case user didn't received the code
-    // 	 * @param {*} req 
-    // 	 * @param {*} res 
-    // 	 */
-    // 	async resendVerification(req, res) {
-    // 		try {
-    // 			const userMobile = req.body.mobile.toLowerCase();
-    // 			const userInfo = await this.model.findEntityByParams({ mobile: userMobile });
-    // 			if (_.get(userInfo, 'verified') || !userInfo) {
-    // 				res.send({ status: 'failed' });
-    // 			} else {
-    // 				const vcDate = new Date(userInfo.verificationCodeDate);
-    // 				vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
-    // 				let verificationCodeDate = userInfo.verificationCodeDate;
-    // 				if (vcDate.getTime() < Date.now()) {
-    // 					const verificationCode = this.generateVerificationCode();
-    // 					verificationCodeDate = new Date();
-    // 					await this.model.updateEntityByModel(userInfo, {
-    // 						verificationCode,
-    // 						verificationCodeDate
-    // 					});
-    // 					// @TODO: you should send the verification code to user by sms or online
-    // 					// smsService.sendVerification(userMobile, verificationCode);
-    // 				}
-    // 				res.send({ status: 'success', verificationCodeDate });
-    // 			}
-    // 		} catch (error) {
-    // 			this.errorHandler(error, res);
-    // 		}
-    // 	}
+    /**
+     * resend verification code, in case user didn't received the code
+     * @param {*} req 
+     * @param {*} res 
+     */
+    async resendVerification(req, res) {
+        try {
+            const userEmail = req.body.email.toLowerCase();
+            const userInfo = await this.model.findEntityByParams({ email: userEmail });
+            if (_.get(userInfo, 'verified') || !userInfo) {
+                res.send({ status: 'failed' });
+            } else {
+                const vcDate = new Date(userInfo.verificationCodeDate);
+                vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
+                let verificationCodeDate = userInfo.verificationCodeDate;
+                if (vcDate.getTime() < Date.now()) {
+                    const verificationCode = this.generateVerificationCode();
+                    verificationCodeDate = new Date();
+                    await this.model.updateEntityByModel(userInfo, {
+                        verificationCode,
+                        verificationCodeDate
+                    });
+                    // @TODO: #4 Send Verification Email
+                }
+                res.send({ status: 'success', verificationCodeDate });
+            }
+        } catch (error) {
+            this.errorHandler(error, res);
+        }
+    }
 
-    // 	/**
-    // 	 * verify the email by code and generate verificationCode to set password
-    // 	 * @param req
-    // 	 * @param res
-    // 	 */
-    // 	async verify(req, res) {
-    // 		try {
-    // 			const code = req.body.code;
-    // 			const userInfo = await this.model.findEntityByParams({
-    // 				mobile: req.body.mobile,
-    // 				verificationCode: code
-    // 			});
-    // 			if (userInfo === null) {
-    // 				return res.send({ verified: false });
-    // 			}
-    // 			const vcDate = new Date(userInfo.verificationCodeDate);
-    // 			vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
-    // 			if (userInfo.verificationCode === code && vcDate.getTime() > Date.now()) {
-    // 				res.send({ verified: true, mobile: userInfo.mobile, code: userInfo.verificationCode });
-    // 			} else {
-    // 				res.send({ verified: false });
-    // 			}
-    // 		} catch (error) {
-    // 			this.errorHandler(error, res);
-    // 		}
-    // 	}
+    /**
+     * verify the email by code and generate verificationCode to set password
+     * @param req
+     * @param res
+     */
+    async verify(req, res) {
+        try {
+            const code = req.body.code;
+            const userInfo = await this.model.findEntityByParams({
+                email: req.body.email.toLowerCase(),
+                verificationCode: code
+            });
+            if (userInfo === null) {
+                return res.send({ verified: false });
+            }
+            const vcDate = new Date(userInfo.verificationCodeDate);
+            vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
+            if (userInfo.verificationCode === code && vcDate.getTime() > Date.now()) {
+                res.send({ verified: true, email: userInfo.email, code: userInfo.verificationCode });
+            } else {
+                res.send({ verified: false });
+            }
+        } catch (error) {
+            this.errorHandler(error, res);
+        }
+    }
 
     // 	/**
     // 	 * set user profile
