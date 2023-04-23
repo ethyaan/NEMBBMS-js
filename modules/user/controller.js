@@ -21,9 +21,11 @@ class userController {
         this.errorHandler = handleError;
     }
 
-    signup = async (req, res) => {
+    signup = async ({ body: { email, name, lastName, password } }, res) => {
 
-        const userEmail = req.body.email.toLowerCase();
+        const userEmail = email.toLowerCase();
+        const userName = name.toLowerCase();
+        const userLastname = lastName.toLowerCase();
 
         try {
 
@@ -31,7 +33,10 @@ class userController {
             const verificationCode = this.generateVerificationCode();
             const newUser = await this.model.createEntity({
                 email: userEmail,
-                verificationCode
+                name: userName,
+                lastName: userLastname,
+                verificationCode,
+                password
             });
             // @TODO: #3 you should send the verification code to user by email
             res.send({ username: newUser.email, verificationCodeDate: newUser.verificationCodeDate });

@@ -1,25 +1,21 @@
 import { body } from 'express-validator';
-import { V, emailValidator ,mobileValidator, codeValidator, nameValidator, lastNameValidator, passwordValidaotr } from '../../common/index.js';
+import { V, emailValidator, mobileValidator, codeValidator, nameValidator, lastNameValidator, passwordValidaotr } from '../../common/index.js';
 
 
 export default {
     signup: () => {
-        return V([emailValidator]);
+        return V([
+            emailValidator,
+            nameValidator,
+            lastNameValidator,
+            passwordValidaotr
+        ]);
     },
     resendVerification: () => {
         return V([emailValidator]);
     },
     verify: () => {
         return V([emailValidator, codeValidator]);
-    },
-    setProfile: () => {
-        return V([
-            emailValidator,
-            codeValidator,
-            nameValidator,
-            lastNameValidator,
-            passwordValidaotr
-        ]);
     },
     login: () => {
         return V([emailValidator, passwordValidaotr]);
