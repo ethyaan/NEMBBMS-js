@@ -274,21 +274,21 @@ class userController {
     // 		}
     // 	}
 
-    // 	/**
-    // 	 * get logged in user profile detail
-    // 	 * @param req
-    // 	 * @param res
-    // 	 */
-    // 	async getProfile(req, res) {
-    // 		try {
-    // 			const userProfile = await this.model.findEntityByParams({ _id: req._user._id }, {
-    // 				_id: 0, password: 0, verificationCode: 0, verificationCodeDate: 0, verified: 0
-    // 			});
-    // 			res.send({ message: 'success', data: userProfile });
-    // 		} catch (error) {
-    // 			this.errorHandler(error, res);
-    // 		}
-    // }
+    /**
+     * get logged in user profile detail
+     * @param req
+     * @param res
+     */
+    async getProfile({ _user: { _id } }, res) {
+        try {
+            const userProfile = await this.model.findEntityByParams({ _id }, {
+                _id: 0, password: 0, verificationCode: 0, verificationCodeDate: 0, verified: 0
+            });
+            res.send({ message: 'success', data: userProfile });
+        } catch (error) {
+            this.errorHandler(error, res);
+        }
+    }
 
     /**
      * generate a 6 digit verification code
@@ -297,6 +297,11 @@ class userController {
         return Math.floor(100000 + Math.random() * 900000);
     }
 
+    /**
+     * create sha256 hex string
+     * @param {*} content 
+     * @returns 
+     */
     sha256(content) {
         return createHash('sha256').update(content).digest('hex');
     }
