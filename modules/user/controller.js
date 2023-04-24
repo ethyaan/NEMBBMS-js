@@ -112,36 +112,6 @@ class userController {
         }
     }
 
-    // 	/**
-    // 	 * set user profile
-    // 	 * @param req
-    // 	 * @param res
-    // 	 */
-    // 	async setProfile(req, res) {
-    // 		try {
-    // 			const userMobile = req.body.mobile.toLowerCase();
-    // 			const verificationCode = req.body.code.toLowerCase();
-    // 			const userInfo = await this.model.findEntityByParams({ mobile: userMobile });
-    // 			const vcDate = new Date(userInfo.verificationCodeDate);
-    // 			vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
-
-    // 			if (userInfo.verified === false && vcDate.getTime() > Date.now() && userInfo.verificationCode === verificationCode) {
-    // 				const pwd = (req.body.password) ? sha256(req.body.password).toString() : '';
-    // 				await this.model.updateEntityByModel(userInfo, {
-    // 					name: req.body.name,
-    // 					lastName: req.body.lastName,
-    // 					verified: true,
-    // 					password: pwd
-    // 				});
-    // 				res.send({ status: true });
-    // 			} else {
-    // 				res.status(400).send({ message: 'Verification code is not valid!' });
-    // 			}
-    // 		} catch (error) {
-    // 			this.errorHandler(error, res);
-    // 		}
-    // 	}
-
     /**
      * express middleware authenticate user with credential
      * @param req
@@ -180,58 +150,47 @@ class userController {
         res.send({ name, lastName, email });
     }
 
-    // 	/**
-    // 	 * log out
-    // 	 * @param req
-    // 	 * @param res
-    // 	 */
-    // 	async logout(req, res) {
-    // 		return res.send({ message: 'success' });
-    // 	}
 
-    // 	/**
-    // 	 * change user password
-    // 	 * @param req
-    // 	 * @param res
-    // 	 */
-    // 	async changeUserPassword(req, res) {
-    // 		try {
-    // 			const userInfo = await this.model.findEntityByParams({ _id: req._user._id });
-    // 			const currentPassword = sha256(req.body.password).toString();
-    // 			const newPassword = sha256(req.body.new).toString();
-    // 			if (currentPassword === userInfo.password) {
-    // 				await this.model.updateEntityByModel(userInfo, { password: newPassword });
-    // 				res.send({ status: true });
-    // 			} else {
-    // 				res.status(400).send({
-    // 					errorCode: 'VALIDATIONFAILED',
-    // 					additionalInformation: {
-    // 						message: 'current password is wrong!'
-    // 					}
-    // 				});
-    // 			}
-    // 		} catch (error) {
-    // 			this.errorHandler(error, res);
-    // 		}
-    // 	}
+    /**
+     * change user password
+     * @param req
+     * @param res
+     */
+    async changeUserPassword({ _user, body: { password, new: newPWD } }, res) {
+        try {
+            const userInfo = await this.model.findEntityByParams({ _id: _user._id });
+            const currentPassword = this.sha256(password);
+            const newPassword = this.sha256(newPWD);
+            if (currentPassword === userInfo.password) {
+                await this.model.updateEntityByModel(userInfo, { password: newPassword });
+                res.send({ status: true });
+            } else {
+                res.status(400).send({
+                    errorCode: 'VALIDATIONFAILED',
+                    additionalInformation: {
+                        message: 'current password is wrong!'
+                    }
+                });
+            }
+        } catch (error) {
+            this.errorHandler(error, res);
+        }
+    }
 
-    // 	/**
-    // 	 * update user profile
-    // 	 * @param req
-    // 	 * @param res
-    // 	 */
-    // 	async updateProfile(req, res) {
-    // 		try {
-    // 			const userInfo = await this.model.findEntityByParams({ _id: req._user._id });
-    // 			await this.model.updateEntityByModel(userInfo, {
-    // 				name: req.body.name,
-    // 				lastName: req.body.lastName
-    // 			});
-    // 			res.send({ message: 'your profile updated successfully' });
-    // 		} catch (error) {
-    // 			this.errorHandler(error, res);
-    // 		}
-    // 	}
+    /**
+     * update user profile
+     * @param req
+     * @param res
+     */
+    async updateProfile({ _user, body: { name, lastName } }, res) {
+        try {
+            const userInfo = await this.model.findEntityByParams({ _id: _user._id });
+            await this.model.updateEntityByModel(userInfo, { name, lastName });
+            res.send({ message: 'your profile updated successfully' });
+        } catch (error) {
+            this.errorHandler(error, res);
+        }
+    }
 
     // 	/**
     // 	 * generate a new random password and share with user

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import validator from './validator.js';
 import controller from './controller.js';
+import { Auth } from '../../services/index.js'
 
 /**
  * Define users end API Routes
@@ -19,11 +20,9 @@ class usersRouter {
 		userRouter.post('/', [...validator.signup()], userCtrl.signup);
 		userRouter.post('/resendVerification', [...validator.resendVerification()], userCtrl.resendVerification);
 		userRouter.post('/verify', [...validator.verify()], userCtrl.verify);
-		
-		// userRouter.post('/login', validator.login(), validator.validate, controller.userAuth, controller.login);
-		// userRouter.post('/logout', [app._Auth.isUserLoggedIn, app._Auth.logOutUser], controller.logout);
-		// userRouter.post('/changePassword', app._Auth.isUserLoggedIn, validator.changePassword(), validator.validate, controller.changeUserPassword);
-		// userRouter.post('/updateProfile', app._Auth.isUserLoggedIn, validator.updateProfile(), validator.validate, controller.updateProfile);
+		userRouter.post('/login', [...validator.login()], userCtrl.userAuth, userCtrl.login);
+		userRouter.post('/changePassword', [Auth.isLoggedIn, ...validator.changePassword()], userCtrl.changeUserPassword);
+		userRouter.post('/updateProfile', [Auth.isLoggedIn, ...validator.updateProfile()], userCtrl.updateProfile);
 		// userRouter.post('/forgetPassword', validator.forgetPassword(), validator.validate, controller.forgetPassword);
 		// userRouter.post('/setNewPassword', validator.setNewPassword(), validator.validate, controller.setNewPassword);
 		// userRouter.get('/getProfile', [app._Auth.isUserLoggedIn], controller.getProfile);
