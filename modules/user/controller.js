@@ -170,18 +170,14 @@ class userController {
     // 		}
     // 	}
 
-    // 	/**
-    // 	 * login method to send the user detail
-    // 	 * @param req
-    // 	 * @param res
-    // 	 */
-    // 	async login(req, res) {
-    // 		res.send({
-    // 			name: res._user.name || '',
-    // 			lastName: res._user.lastName || '',
-    // 			mobile: res._user.mobile || ''
-    // 		});
-    // 	}
+    /**
+     * login method to send the user detail
+     * @param req
+     * @param res
+     */
+    async login(req, { _user: { name = ``, lastName = ``, email = `` } }) {
+        res.send({ name, lastName, email });
+    }
 
     // 	/**
     // 	 * log out
