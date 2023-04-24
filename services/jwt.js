@@ -35,13 +35,12 @@ export class JWT {
     /**
      * sign a token
      * @param payload
-     * @param secretOrPrivateKey
      * @param options
      * @returns
      */
-    sign = async (payload, secretOrPrivateKey, options) => {
+    sign = async (payload, options) => {
         const jti = payload.jti || generateId(10);
-        const token = jsonwebtoken.sign({ ...payload, jti }, secretOrPrivateKey, Object.assign({ expiresIn: '1d' }, options));
+        const token = jsonwebtoken.sign({ ...payload, jti }, config.JWT_SECRET, Object.assign({ expiresIn: '1d' }, options));
         return token;
     }
 
@@ -58,13 +57,12 @@ export class JWT {
     /**
      * verify a token
      * @param token
-     * @param secretOrPublicKey
      * @param options
      * @returns
      */
-    async verify(token, secretOrPublicKey, options){
+    async verify(token, options) {
         const decoded_1 = await new Promise((resolve, reject) => {
-            return jsonwebtoken.verify(token, secretOrPublicKey, options, (err, decoded) => {
+            return jsonwebtoken.verify(token, config.JWT_SECRET, options, (err, decoded) => {
                 if (err) {
                     return reject(err);
                 }
@@ -75,6 +73,29 @@ export class JWT {
             throw new TokenInvalidError();
         }
         return decoded_1;
+    }
+
+    /**
+     * is user Logged In
+     * @param {*} req 
+     * @param {*} res 
+     * @param {*} next 
+     * @returns 
+     */
+    isLoggedIn = async (req, res, next) => {
+        let tokenKey = req.get('Authorization');
+        if (tokenKey === undefined) {
+            return res.status(401).send('unAuthorized');
+        } else {
+            try {
+                let tokenString = tokenKey.split(' ')[1];
+                req._user = await this.verify(tokenString);
+                next();
+            } catch (error) {
+                logger.error('Authentication Failed => ', error.toString());
+                return res.status(401).send('unAuthorized');
+            }
+        }
     }
 }
 
