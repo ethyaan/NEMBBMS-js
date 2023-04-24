@@ -1,7 +1,8 @@
+import { createHash } from 'node:crypto'
 import { ModelFactory, handleError } from '../../common/index.js';
 import { UserModel } from './schema.js';
 import _ from 'lodash';
-// const sha256 = require('crypto-js/sha256');
+import { Auth } from '../../services/index.js';
 import config from '../../config.js';
 
 /**
@@ -141,41 +142,41 @@ class userController {
     // 		}
     // 	}
 
-    // 	/**
-    // 	 * express middleware authenticate user with credential
-    // 	 * @param req
-    // 	 * @param res
-    // 	 * @param next
-    // 	 */
-    // 	async userAuth(req, res, next) {
-    // 		try {
-    // 			const userMobile = req.body.mobile.toLowerCase();
-    // 			const pwd = sha256(req.body.password).toString();
-    // 			let userInfo = await this.model.findEntityByParams({ mobile: userMobile, password: pwd }, { 'password': false });
-    // 			if (userInfo === null) {
-    // 				return res.status(400).send({
-    // 					errorCode: 'AUTHFAILED',
-    // 					additionalInformation: {
-    // 						message: 'username or password is wrong!'
-    // 					}
-    // 				});
-    // 			}
-    // 			userInfo = userInfo.toObject();
-    // 			const token = await this.auth.generateUserToken(userInfo, config.SECRET_KEY);
-    // 			res.set('Authorization', token);
-    // 			res._user = userInfo;
-    // 			next();
-    // 		} catch (error) {
-    // 			this.errorHandler(error, res);
-    // 		}
-    // 	}
+    /**
+     * express middleware authenticate user with credential
+     * @param req
+     * @param res
+     * @param next
+     */
+    async userAuth({ body: { email, password } }, res, next) {
+        try {
+            const userEmail = email.toLowerCase();
+            const pwd = this.sha256(password);
+            let userInfo = await this.model.findEntityByParams({ email: userEmail, password: pwd }, { 'password': false });
+            if (userInfo === null) {
+                return res.status(400).send({
+                    errorCode: 'AUTHFAILED',
+                    additionalInformation: {
+                        message: 'username or password is wrong!'
+                    }
+                });
+            }
+            userInfo = userInfo.toObject();
+            const token = await Auth.sign(userInfo);
+            res.set('Authorization', token);
+            res._user = userInfo;
+            next();
+        } catch (error) {
+            this.errorHandler(error, res);
+        }
+    }
 
     /**
      * login method to send the user detail
      * @param req
      * @param res
      */
-    async login(req, { _user: { name = ``, lastName = ``, email = `` } }) {
+    async login({ _user: { name = ``, lastName = ``, email = `` } }, res) {
         res.send({ name, lastName, email });
     }
 
@@ -335,6 +336,10 @@ class userController {
      */
     generateVerificationCode() {
         return Math.floor(100000 + Math.random() * 900000);
+    }
+
+    sha256(content) {
+        return createHash('sha256').update(content).digest('hex');
     }
 
 }
