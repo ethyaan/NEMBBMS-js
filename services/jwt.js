@@ -99,7 +99,7 @@ export class JWT {
     }
 }
 
-export const Auth = new JWTDynamoDB();
+export const Auth = new JWT();
 
 /**
  * generate jwt id
