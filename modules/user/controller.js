@@ -197,7 +197,7 @@ class userController {
      * @param req
      * @param res
      */
-    async forgetPassword({ body: { email }}, res) {
+    async forgetPassword({ body: { email } }, res) {
         try {
             const userEmail = email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail }, { password: false });
@@ -237,41 +237,41 @@ class userController {
         }
     }
 
-    // 	/**
-    // 	 * set new password
-    // 	 * @param req
-    // 	 * @param res
-    // 	 */
-    // 	async setNewPassword(req, res) {
-    // 		try {
-    // 			const userMobile = req.body.mobile.toLowerCase();
-    // 			const userInfo = await this.model.findEntityByParams({ mobile: userMobile });
-    // 			if (userInfo === null) {
-    // 				return res.status(400).send({
-    // 					errorCode: 'AUTHFAILED',
-    // 					additionalInformation: {
-    // 						message: 'username is wrong!'
-    // 					}
-    // 				});
-    // 			}
-    // 			const secureKeyDate = new Date(userInfo.verificationCodeDate);
-    // 			secureKeyDate.setMinutes(secureKeyDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
-    // 			if (userInfo.verificationCode === req.body.code && userInfo.verified === true && secureKeyDate.getTime() > Date.now()) {
-    // 				const password = (req.body.password) ? sha256(req.body.password).toString() : '';
-    // 				await this.model.updateEntityByModel(userInfo, { password });
-    // 				res.send({ success: true });
-    // 			} else {
-    // 				res.status(400).send({
-    // 					errorCode: 'INVALIDCODE',
-    // 					additionalInformation: {
-    // 						message: 'verification code is not valid!'
-    // 					}
-    // 				});
-    // 			}
-    // 		} catch (error) {
-    // 			this.errorHandler(error, res);
-    // 		}
-    // 	}
+    /**
+     * set new password
+     * @param req
+     * @param res
+     */
+    async setNewPassword({ body: { email, code, password } }, res) {
+        try {
+            const userEmail = email.toLowerCase();
+            const userInfo = await this.model.findEntityByParams({ email: userEmail });
+            if (userInfo === null) {
+                return res.status(400).send({
+                    errorCode: 'AUTHFAILED',
+                    additionalInformation: {
+                        message: 'username is wrong!'
+                    }
+                });
+            }
+            const secureKeyDate = new Date(userInfo.verificationCodeDate);
+            secureKeyDate.setMinutes(secureKeyDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
+            if (userInfo.verificationCode === code && userInfo.verified === true && secureKeyDate.getTime() > Date.now()) {
+                password = (password) ? this.sha256(password).toString() : '';
+                await this.model.updateEntityByModel(userInfo, { password });
+                res.send({ success: true });
+            } else {
+                res.status(400).send({
+                    errorCode: 'INVALIDCODE',
+                    additionalInformation: {
+                        message: 'verification code is not valid!'
+                    }
+                });
+            }
+        } catch (error) {
+            this.errorHandler(error, res);
+        }
+    }
 
     /**
      * get logged in user profile detail

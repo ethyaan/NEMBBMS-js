@@ -24,7 +24,7 @@ class usersRouter {
 		userRouter.post('/changePassword', [Auth.isLoggedIn, ...validator.changePassword()], userCtrl.changeUserPassword);
 		userRouter.post('/updateProfile', [Auth.isLoggedIn, ...validator.updateProfile()], userCtrl.updateProfile);
 		userRouter.post('/forgetPassword', [...validator.forgetPassword()], userCtrl.forgetPassword);
-		// userRouter.post('/setNewPassword', [...validator.setNewPassword()], userCtrl.setNewPassword);
+		userRouter.post('/setNewPassword', [...validator.setNewPassword()], userCtrl.setNewPassword);
 		userRouter.get('/getProfile', [Auth.isLoggedIn], userCtrl.getProfile);
 
 		app.use('/user', userRouter);
