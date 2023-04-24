@@ -192,51 +192,50 @@ class userController {
         }
     }
 
-    // 	/**
-    // 	 * generate a new random password and share with user
-    // 	 * @param req
-    // 	 * @param res
-    // 	 */
-    // 	async forgetPassword(req, res) {
-    // 		try {
-    // 			const userMobile = req.body.mobile.toLowerCase();
-    // 			const userInfo = await this.model.findEntityByParams({ mobile: userMobile }, { password: false });
-    // 			if (userInfo === null) {
-    // 				return res.status(400).send({
-    // 					errorCode: 'AUTHFAILED',
-    // 					additionalInformation: {
-    // 						message: 'username is wrong'
-    // 					}
-    // 				});
-    // 			}
-    // 			const vcDate = new Date(userInfo.verificationCodeDate);
-    // 			vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
-    // 			if (Date.now() < vcDate.getTime()) {
-    // 				res.send({ success: true, verificationCodeDate: userInfo.verificationCodeDate });
-    // 			} else if (userInfo.verified === true) {
-    // 				const verificationCode = this.generateVerificationCode();
-    // 				const verificationCodeDate = new Date();
-    // 				await this.model.updateEntityByModel(userInfo, {
-    // 					verificationCode,
-    // 					verificationCodeDate
-    // 				});
+    /**
+     * generate a new random password and share with user
+     * @param req
+     * @param res
+     */
+    async forgetPassword({ body: { email }}, res) {
+        try {
+            const userEmail = email.toLowerCase();
+            const userInfo = await this.model.findEntityByParams({ email: userEmail }, { password: false });
+            if (userInfo === null) {
+                return res.status(400).send({
+                    errorCode: 'AUTHFAILED',
+                    additionalInformation: {
+                        message: 'username is wrong'
+                    }
+                });
+            }
+            const vcDate = new Date(userInfo.verificationCodeDate);
+            vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
+            if (Date.now() < vcDate.getTime()) {
+                res.send({ success: true, verificationCodeDate: userInfo.verificationCodeDate });
+            } else if (userInfo.verified === true) {
+                const verificationCode = this.generateVerificationCode();
+                const verificationCodeDate = new Date();
+                await this.model.updateEntityByModel(userInfo, {
+                    verificationCode,
+                    verificationCodeDate
+                });
 
-    // 				// @TODO: you should send the verification code to user by sms or online
-    // 				// smsService.sendVerification(userMobile, verificationCode);
+                // @TODO: #9 we should send verification email here
 
-    // 				res.send({ success: true, verificationCodeDate });
-    // 			} else {
-    // 				res.status(400).send({
-    // 					errorCode: 'NOTVERIFIED',
-    // 					additionalInformation: {
-    // 						message: 'user not verified!'
-    // 					}
-    // 				});
-    // 			}
-    // 		} catch (error) {
-    // 			this.errorHandler(error, res);
-    // 		}
-    // 	}
+                res.send({ success: true, verificationCodeDate });
+            } else {
+                res.status(400).send({
+                    errorCode: 'NOTVERIFIED',
+                    additionalInformation: {
+                        message: 'user not verified!'
+                    }
+                });
+            }
+        } catch (error) {
+            this.errorHandler(error, res);
+        }
+    }
 
     // 	/**
     // 	 * set new password
