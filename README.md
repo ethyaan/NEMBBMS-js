@@ -2,7 +2,7 @@
 
 # NodeJS ExpressJS MongoDB Boilerplate Backend Modular Structure - pure JS
 
-[![forthebadge made-with-javascript](http://ForTheBadge.com/images/badges/made-with-javascript.svg)](https://www.javascript.com/)
+[![made-with-javascript](http://ForTheBadge.com/images/badges/made-with-javascript.svg)](https://www.javascript.com/)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/ehsanagh/nodejs-backend-structure-modular-JS/graphs/commit-activity)
 [![Generic badge](https://img.shields.io/badge/Author-Ethan-<COLOR>.svg)](https://www.linkedin.com/in/ehsanaghaei/)
