@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js",
-    "build": ""
+    "db:up": "docker run -d --name NEMBBMS-JS -p 27501:27017 -e MONGO_INITDB_ROOT_USERNAME=archetype -e MONGO_INITDB_ROOT_PASSWORD=archetype mongo",
+    "db:down": "docker stop NEMBBMS-JS",
+    "db:purge": "docker rm NEMBBMS-JS"
   },
   "repository": {
     "type": "git",

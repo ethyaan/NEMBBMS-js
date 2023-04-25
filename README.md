@@ -2,10 +2,10 @@
 
 # NodeJS ExpressJS MongoDB Boilerplate Backend Modular Structure - pure JS
 
-[![forthebadge made-with-javascript](http://ForTheBadge.com/images/badges/made-with-javascript.svg)](https://www.javascript.com/)
+[![made-with-javascript](http://ForTheBadge.com/images/badges/made-with-javascript.svg)](https://www.javascript.com/)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/ehsanagh/nodejs-backend-structure-modular-JS/graphs/commit-activity)
-[![Generic badge](https://img.shields.io/badge/Author-EhsanAghaei-<COLOR>.svg)](mailto:ehsan.aghaeii@gmail.com)
+[![Generic badge](https://img.shields.io/badge/Author-Ethan-<COLOR>.svg)](https://www.linkedin.com/in/ehsanaghaei/)
 
 ## NodejS Backend structure modular JS
 
@@ -80,8 +80,34 @@ MongoDB -> tested with > 4.2.8
 First get a copy or clone or download the project.  
 In the root folder, copy `.env.sample` to `.env` file and modify the configuration based on your desire.
 
-**Configuration explaination will be added here soon**
-Then run `node index.js`
+---
+Configuration Options
+
+`PORT` : the application port
+
+`MONGO_URI` : MongoDB connection string <br />
+the dault value is set to point to the local docker MongoDB container <br />
+
+**_Run Local Docker MongoDB Containe_** <br/>
+
+first make sure have the `docker` engine installed and runing on your machine
+`npm run db:up` : brings up the MongoDB container <br />
+`npm run db:down` : stops the Mongodb container <br />
+`npm run db:purge` : removes the container <br />
+
+`DBNAME` : set your MongoDB databse name here
+
+`VERIFICATION_CODE_LIFE_TIME` : time to expire of the user verification code in minutes since it get generated, used in `user` module
+
+`RESEND_VC_LIFE_TIME` : verification code resend cool-off time in minute, default is 2, means only one verification code can be generated in every 2 minute, used in `user` modules
+
+`JWT_SECRET` : JSON Web Token Secret signing key, makesure to change this
+
+---
+
+Install the dependecies by `npm i` or ` yarn` command
+
+Then run `npm run start` Or `yarn start` to start the application
 
 ## <a name="modules">Modules</a>
 
@@ -91,7 +117,7 @@ Then run `node index.js`
 
 ... updating...
 
-----
+---
 
 ### <a name="author">Author</a>
 
