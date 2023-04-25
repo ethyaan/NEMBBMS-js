@@ -17,22 +17,21 @@ const connectMongoDB = () => {
 	const mongoHost = new url.URL(mondoDBURI).host;
 	mongoose.set('strictQuery', true);
 
-	return new Promise((resolve, reject) => {
-		mongoose.connect(mondoDBURI, connectionOptions, async (err) => {
-			if (err) {
-				Logger.error('Error connecting mongoDB => ', err);
-				reject(true);
-			}
+	return new Promise(async (resolve, reject) => {
+		try {
+			await mongoose.connect(mondoDBURI, connectionOptions);
 			Logger.success(`Connected to mongoDB at ${mongoHost}`);
 			resolve(true);
-		});
+		} catch (err) {
+			Logger.error('Error connecting mongoDB => ', err);
+			reject(true);
+		}
 	});
 };
 
 const startServer = async () => {
 	try {
-		// await connectMongoDB();
-		// await app._Auth.connect();
+		await connectMongoDB();
 		app.listen(config.PORT, () => {
 			Logger.success(`App listening on port ${config.PORT}`);
 		});
