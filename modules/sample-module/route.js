@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import controller from './controller.js';
 
 /**
  * Define Sample module
@@ -11,14 +12,11 @@ class sampleRouter {
 	 */
 	constructor(app) {
 
-		// const controller = require('./controller')(app);
+		const ctrl = controller(app);
 		const sampleRouter = Router();
 
-		// sampleRouter.get('/', controller.sampleAPI);
-
+		sampleRouter.get('/', ctrl.sampleAPI);
 		app.use('/sample', sampleRouter);
-
 	}
-
 }
 export default (app) => new sampleRouter(app);
