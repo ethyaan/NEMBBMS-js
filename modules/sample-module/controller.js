@@ -21,4 +21,4 @@ class sampleController {
 
 }
 
-module.exports = (app) => new sampleController(app);
+export default (app) => new sampleController(app);
