@@ -70,6 +70,8 @@ Each module is a folder and it usually has the following structure.
 which existance of `route.js` is neccessary for each module, because `app.js` will look inside each module folder to load it and this is happening by loading the `route.js`.  
  `route.js` is a file that contains all the routes for that modules, exposes a function that create a new instance of the route class file.
 
+`sample-module` folder is a example module which you can use as template, it's tiny and doesn't contain any logic.
+
 ## <a name="requirement">Requirement</a>
 
 Node.JS -> v16.15.1
