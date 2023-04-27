@@ -1,0 +1,72 @@
+paths:
+  /user:
+    post:
+      summary: Create a new example object
+      operationId: createExampleObject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '200':
+          description: Example object created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupResponse'
+        '4XX':
+          description: Invalid request body or Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    SignupRequest:
+      type: object
+      required:
+        - name
+        - lastName
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          description: User name
+        lastName:
+          type: string
+          description: User last name
+        email:
+          type: string
+          format: email
+          description: User email address
+        password:
+          type: string
+          description: User password
+    SignupResponse:
+      type: object
+      properties:
+        username:
+          type: string
+          format: email
+          description: User email address
+        verificationCodeDate:
+          type: string
+          description: Expirty date time for the generated verification code for new user
+    ErrorResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: Application error code
+        errorMessage:
+          type: string
+          description: Error message text
+        additionalInfo:
+          type: object
+          description: any additional info
