@@ -45,7 +45,6 @@ class userController {
             const errorMessage = _.get(error, 'errorObj.additionalInformation.message', false);
             // if we get duplicate error message from mongoose, we handle different response
             if (errorMessage && errorMessage.includes('duplicate key error')) {
-                const userEmail = req.body.email.toLowerCase();
                 const user = await this.model.findEntityByParams({ email: userEmail }, { verified: true });
                 this.errorHandler(createErrorObject({ msg: 'user Already Registered.' }, { verified: user.verified }), res);
             } else {
