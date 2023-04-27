@@ -26,7 +26,8 @@ app.get('/health', (request, response) => {
 // options for the swagger docs
 const options = {
 	//swaggerDefinitions
-	swaggerDefinition: {
+	definition: {
+		openapi: "3.0.3",
 		info: {
 			title: 'REST API for Archetype NEMBBMS',
 			version: '0.1.0',
