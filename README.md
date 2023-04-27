@@ -16,7 +16,7 @@ This is a ready and production level tested structure worked with great perfoman
 Table of content:
 
 1. [The Idea](#the-idea)
-2. [How it works.](#how-it-works)
+2. [How it works](#how-it-works)
 3. [Requirement](#requirement)
 4. [How to run](#how-to-use)
 5. [modules](#modules)
@@ -62,13 +62,19 @@ Each module is a folder and it usually has the following structure.
 
 ```
   user
-    - route.js
     - controller.js
+    - route.js
     - schema.js
+    - [*].yaml
+    - validator.js
 ```
 
-which existance of `route.js` is neccessary for each module, because `app.js` will look inside each module folder to load it and this is happening by loading the `route.js`.  
- `route.js` is a file that contains all the routes for that modules, exposes a function that create a new instance of the route class file.
+`controller.js` is where the business logic resides, all of our logical operations will be handled inside controller.<br />
+which existance of `route.js` is neccessary for each module, because autoloader will look inside each module folder to load `route.js` which is the entry point for each module. <br/>
+`route.js` is a file that contains all the routes for that modules, exposes a function that create a new instance of the route class file. <br />
+`schema.js` is the file that contains our mongoose Schema files for MongoDB. <br />
+`*.yaml` any file with `.yaml` format inside module directory is an OpenAPI speceficiation for the rest APIs which will be used by Swagger-UI. <br />
+`validator.js` all of the API validation for the module are defined here by using express-validator
 
 `sample-module` folder is a example module which you can use as template, it's tiny and doesn't contain any logic.
 
@@ -110,7 +116,8 @@ first make sure have the `docker` engine installed and runing on your machine <b
 
 Install the dependecies by `npm i` or `yarn` command
 
-Then run `npm run start` Or `yarn start` to start the application
+Then run `npm run start` Or `yarn start` to start the application <br />
+API documentation is available by Swagger under `http://[host]:[port]/docs`
 
 ## <a name="modules">Modules</a>
 
