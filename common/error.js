@@ -7,7 +7,7 @@ import { Logger } from './logger.js';
  */
 const createErrorObject = ({ options, additionalInfo }) => {
 	return {
-		responseCode: options.statusCode || 418,
+		responseCode: options.statusCode || 422,
 		errorCode: options.errorCode || 'GeneralError',
 		errorMessage: options.msg,
 		additionalInfo
@@ -26,7 +26,7 @@ const createError = (input) => {
 const handleError = (error, res) => {
 	const errorOutput = (error.errorMessage) ? error : createErrorObject({ options: { msg: 'Error while processing your request' } });
 	Logger.error('Error Handler => ', error);
-	res.status(error.responseCode || 500).send(errorOutput);
+	res.status(errorOutput.responseCode || 500).send(errorOutput);
 };
 
 export { createErrorObject, createError, handleError };
