@@ -1,52 +1,50 @@
-// issue number #7
-// @todo: refcator and update is required 
-
-// update all imports 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs'
+import path from 'path'
+import logger from './logger'
+import sgMail from '@sendgrid/mail'
 const filePath = path.join(__dirname, '../email-templates');
-const logger    = require('./logger');
-// install and add to package 
-const sgMail = require('@sendgrid/mail');
 
-// update this to use config 
-sgMail.setApiKey('blablabla');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 class SendGrid {
     constructor(app) {
-        // Object.assign(this, app);
-
-        // this.sendMailByTemplate = this.sendMailByTemplate.bind(this);
+        this.app = app
+        this.sendMailByTemplate = this.sendMailByTemplate.bind(this);
     }
 
-    // change to arrow func
-    // write js doc
-    async sendMail(subject, body, emailAddressList, from) {
-        let msg = {
+    /**
+     * Sends an email.
+     * @param {string} subject - The subject of the email.
+     * @param {string} body - The body of the email.
+     * @param {string[]} emailAddressList - The list of email addresses to send the email to.
+     * @param {string} from - The email address to send the email from.
+     */
+    sendMail = async (subject, body, emailAddressList, from) => {
+        const msg = {
             to: emailAddressList,
             from: from || 'no-reply@bounce.lingemy.com',
-            subject: subject,
+            subject,
             html: body,
         };
 
-        sgMail.sendMultiple(msg).then(data => {
-            logger.success('Mail Sent To :', emailAddressList);
-        }).catch(err => {
-            logger.error('Error In Sending Mail', err);
-        });
+        try {
+            await sgMail.sendMultiple(msg)
+            logger.success("Mail Sent To :", emailAddressList);
+        } catch (error) {
+            logger.error("Error In Sending Mail", error);
+        }
     }
-
 
     // @todo: change to arrow function
     /**
      * send an email by loading one template and fill the values and sending to the recipients
-     * @param subject
-     * @param templateName
-     * @param templateTags
-     * @param emailAddressList
-     * @param from
+     * @param {string} subject - The subject of the email.
+     * @param {string} templateName - The name of the email template.
+     * @param {{name: string, value: string}[]} templateTags - The tags to replace in the email template.
+     * @param {string[]} emailAddressList - The list of email addresses to send the email to. 
+     * @param {string} from - The email address to send the email from.
      */
-    sendMailByTemplate(subject, templateName, templateTags, emailAddressList, from) {
+    sendMailByTemplate = (subject, templateName, templateTags, emailAddressList, from) => {
         try {
             templateTags.push({name: '___ASSET_URL', value: this._CONFIG.backendAddress});
             let template = fs.readFileSync(path.join(filePath, `${templateName}.html`));
@@ -60,4 +58,4 @@ class SendGrid {
         }
     }
 }
-module.exports = (app) => new SendGrid(app);
+export default (app) => new SendGrid(app);
