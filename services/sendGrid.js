@@ -2,16 +2,12 @@ import fs from "fs";
 import path from "path";
 import logger from "./logger";
 import sgMail from "@sendgrid/mail";
+import config from "../config";
 const filePath = path.join(__dirname, "../email-templates");
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+sgMail.setApiKey(config.SENDGRID_API_KEY);
 
 class SendGrid {
-  constructor(app) {
-    this.app = app;
-    this.sendMailByTemplate = this.sendMailByTemplate.bind(this);
-  }
-
   /**
    * Sends an email.
    * @param {string} subject - The subject of the email.
