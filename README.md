@@ -112,6 +112,8 @@ first make sure have the `docker` engine installed and runing on your machine <b
 
 `JWT_SECRET` : JSON Web Token Secret signing key, makesure to change this
 
+`SENDGRID_API_KEY` : This environment variable is used to authenticate your application with the SendGrid email service API.
+
 ---
 
 Install the dependecies by `npm i` or `yarn` command
