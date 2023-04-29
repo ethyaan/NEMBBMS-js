@@ -48,6 +48,9 @@ app
     -- module2
     -- ...
   - services
+  - email-templates
+    -- html
+    -- mjml
 ```
 
 **`Common` :** here is the place that we keep out commonly used codes and tools like, FactorClasses. Global Validators, Loggers and ...
@@ -57,6 +60,8 @@ app
  Each module that we create is going to loadd automatically. no need to import anything anywher.
 
 **`Servies` :** contains the service files, Each service file is a class that has member specefied to do a specefic functionality, example `google-captcha`, `authentication`, `sendemail`, `logger`, `payment`, `sendgrid` or ...
+
+**`email-templates` :** To use MJML, you can create a new MJML file with the .mjml extension, and then compile it to HTML using the script in package.json file
 
 Each module is a folder and it usually has the following structure.
 
