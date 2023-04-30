@@ -48,6 +48,9 @@ app
     -- module2
     -- ...
   - services
+  - emails
+    -- html
+    -- mjml
 ```
 
 **`Common` :** here is the place that we keep out commonly used codes and tools like, FactorClasses. Global Validators, Loggers and ...
@@ -57,6 +60,8 @@ app
  Each module that we create is going to loadd automatically. no need to import anything anywher.
 
 **`Servies` :** contains the service files, Each service file is a class that has member specefied to do a specefic functionality, example `google-captcha`, `authentication`, `sendemail`, `logger`, `payment`, `sendgrid` or ...
+
+**`emails` :** To use MJML, you can create a new MJML file with the .mjml extension, and then compile it to HTML using the script in package.json file
 
 Each module is a folder and it usually has the following structure.
 
@@ -111,6 +116,8 @@ first make sure have the `docker` engine installed and runing on your machine <b
 `RESEND_VC_LIFE_TIME` : verification code resend cool-off time in minute, default is 2, means only one verification code can be generated in every 2 minute, used in `user` modules
 
 `JWT_SECRET` : JSON Web Token Secret signing key, makesure to change this
+
+`SENDGRID_API_KEY` : This environment variable is used to authenticate your application with the SendGrid email service API.
 
 ---
 
