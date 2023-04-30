@@ -8,7 +8,8 @@
     "test": "jest",
     "db:up": "docker run -d --name NEMBBMS-JS -p 27501:27017 -e MONGO_INITDB_ROOT_USERNAME=archetype -e MONGO_INITDB_ROOT_PASSWORD=archetype mongo",
     "db:down": "docker stop NEMBBMS-JS",
-    "db:purge": "docker rm NEMBBMS-JS"
+    "db:purge": "docker rm NEMBBMS-JS",
+    "build:email": "mjml emails/mjml/*.mjml -o emails/html"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.21",
+    "mjml": "^4.14.1",
     "mongoose": "^7.0.4",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^4.6.2"
