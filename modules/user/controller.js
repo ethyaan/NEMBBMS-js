@@ -58,7 +58,7 @@ class userController {
      * @param {*} req 
      * @param {*} res 
      */
-    async resendVerification(req, res) {
+    resendVerification = async(req, res) => {
         try {
             const userEmail = req.body.email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail });
@@ -89,7 +89,7 @@ class userController {
      * @param req
      * @param res
      */
-    async verify(req, res) {
+    verify = async (req, res) => {
         try {
             const code = req.body.code;
             const userInfo = await this.model.findEntityByParams({
@@ -117,7 +117,7 @@ class userController {
      * @param res
      * @param next
      */
-    async userAuth({ body: { email, password } }, res, next) {
+    userAuth = async ({ body: { email, password } }, res, next) => {
         try {
             const userEmail = email.toLowerCase();
             const pwd = this.sha256(password);
@@ -145,7 +145,7 @@ class userController {
      * @param req
      * @param res
      */
-    async login({ _user: { name = ``, lastName = ``, email = `` } }, res) {
+    login = async ({ _user: { name = ``, lastName = ``, email = `` } }, res) => {
         res.send({ name, lastName, email });
     }
 
@@ -155,7 +155,7 @@ class userController {
      * @param req
      * @param res
      */
-    async changeUserPassword({ _user, body: { password, new: newPWD } }, res) {
+    changeUserPassword = async ({ _user, body: { password, new: newPWD } }, res) => {
         try {
             const userInfo = await this.model.findEntityByParams({ _id: _user._id });
             const currentPassword = this.sha256(password);
@@ -181,7 +181,7 @@ class userController {
      * @param req
      * @param res
      */
-    async updateProfile({ _user, body: { name, lastName } }, res) {
+    updateProfile = async ({ _user, body: { name, lastName } }, res) => {
         try {
             const userInfo = await this.model.findEntityByParams({ _id: _user._id });
             await this.model.updateEntityByModel(userInfo, { name, lastName });
@@ -196,7 +196,7 @@ class userController {
      * @param req
      * @param res
      */
-    async forgetPassword({ body: { email } }, res) {
+    forgetPassword = async ({ body: { email } }, res) => {
         try {
             const userEmail = email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail }, { password: false });
@@ -241,7 +241,7 @@ class userController {
      * @param req
      * @param res
      */
-    async setNewPassword({ body: { email, code, password } }, res) {
+    setNewPassword = async ({ body: { email, code, password } }, res) => {
         try {
             const userEmail = email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail });
@@ -277,7 +277,7 @@ class userController {
      * @param req
      * @param res
      */
-    async getProfile({ _user: { _id } }, res) {
+    getProfile = async ({ _user: { _id } }, res) => {
         try {
             const userProfile = await this.model.findEntityByParams({ _id }, {
                 _id: 0, password: 0, verificationCode: 0, verificationCodeDate: 0, verified: 0
@@ -291,7 +291,7 @@ class userController {
     /**
      * generate a 6 digit verification code
      */
-    generateVerificationCode() {
+    generateVerificationCode = () => {
         return Math.floor(100000 + Math.random() * 900000);
     }
 
@@ -300,7 +300,7 @@ class userController {
      * @param {*} content 
      * @returns 
      */
-    sha256(content) {
+    sha256 = (content) => {
         return createHash('sha256').update(content).digest('hex');
     }
 
