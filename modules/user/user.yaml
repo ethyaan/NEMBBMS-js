@@ -24,7 +24,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
-  /resendVerification:
+  /user/resendVerification:
     post:
       summary: Resend verification email
       requestBody:
@@ -48,7 +48,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
-  /verify:
+  /user/verify:
     post:
       summary: Verify user's email with verification code
       requestBody:
@@ -72,7 +72,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
-  /login:
+  /user/login:
     post:
       summary: User login
       responses:
@@ -90,7 +90,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
-  /changePassword:
+  /user/changePassword:
     post:
       summary: Change user's password
       requestBody:
@@ -114,7 +114,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
-  /updateProfile:
+  /user/updateProfile:
     post:
       summary: Update user's profile
       requestBody:
@@ -138,7 +138,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
-  /forgetPassword:
+  /user/forgetPassword:
     post:
       summary: Send verification code for password reset
       requestBody:
@@ -162,7 +162,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
-  /setNewPassword:
+  /user/setNewPassword:
     post:
       summary: Set new password using verification code
       requestBody:
@@ -186,7 +186,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
-  /getProfile:
+  /user/getProfile:
     get:
       summary: Get user profile information
       responses:
