@@ -46,11 +46,13 @@ class userController {
                 {name: "__USERNAME", value: newUser.email},
                 {name: "__VERIFICATION_CODE", value: verificationCode},
             ]
-            sendgrid.sendMailByTemplate("Verification Code",
-            "verification-code",
-            templateTags,
-            [newUser.email],
-            "no-replay@archetype.com")
+            sendgrid.sendMailByTemplate(
+                'Verification Code',
+                'verification-code',
+                templateTags,
+                [newUser.email],
+                'no-reply@bounce.lingemy.com'
+            );
             res.send({ username: newUser.email, verificationCodeDate: newUser.verificationCodeDate });
         } catch (error) {
             const errorMessage = _.get(error, 'errorObj.additionalInformation.message', false);
