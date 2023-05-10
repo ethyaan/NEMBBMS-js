@@ -1,9 +1,11 @@
 import fs from "fs";
 import path from "path";
-import logger from "./logger";
+import { Logger } from "../common/index.js";
 import sgMail from "@sendgrid/mail";
-import config from "../config";
-const filePath = path.join(__dirname, "../email-templates");
+import config from "../config.js";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+const filePath = dirname(fileURLToPath(import.meta.url));
 
 sgMail.setApiKey(config.SENDGRID_API_KEY);
 
@@ -25,9 +27,9 @@ class SendGrid {
 
     try {
       await sgMail.sendMultiple(msg);
-      logger.success("Mail Sent To :", emailAddressList);
+      Logger.success("Mail Sent To :", emailAddressList);
     } catch (error) {
-      logger.error("Error In Sending Mail", error);
+      Logger.error("Error In Sending Mail", error);
     }
   };
 
@@ -60,9 +62,9 @@ class SendGrid {
       });
       this.sendMail(subject, template, emailAddressList, from);
     } catch (e) {
-      logger.error("Error in sending e-mail By Template", e.toString());
+      Logger.error("Error in sending e-mail By Template", e.toString());
     }
   };
 }
 
-export default (app) => new SendGrid(app);
+export default () => new SendGrid();
