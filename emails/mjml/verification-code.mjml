@@ -1,0 +1,30 @@
+<mjml>
+    <mj-body>
+        <mj-section>
+            <mj-column>
+                <mj-text align="center" font-size="20px" color="#000000">
+                    Verification Code
+                </mj-text>
+                <mj-divider border-color="#f45e43" />
+                <mj-text font-size="16px" color="#000000">
+                    Hi __USERNAME
+                </mj-text>
+                <mj-text font-size="16px" color="#000000">
+                    Your verification code is ___VERIFICATION_CODE.
+                </mj-text>
+                <mj-text font-size="16px" color="#000000">
+                    Please use this code to verify your email address and
+                    complete your registration on our platform.
+                </mj-text>
+                <mj-button
+                    href="#"
+                    background-color="#f45e43"
+                    color="#ffffff"
+                    font-size="16px"
+                >
+                    Verify Email
+                </mj-button>
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>
