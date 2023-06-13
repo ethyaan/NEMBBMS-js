@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto'
-import { ModelFactory, handleError, createErrorObject } from '../../common';
+import { ModelFactory, handleError, createErrorObject } from '../../common/index.js';
 import { UserModel } from './schema.js';
 import _ from 'lodash';
-import { Auth, SendGrid, ReCaptcha } from '../../services';
+import { Auth, SendGrid, ReCaptcha } from '../../services/index.js';
 import config from '../../config.js';
 
 /**
