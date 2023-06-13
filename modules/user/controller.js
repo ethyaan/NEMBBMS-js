@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { ModelFactory, handleError, createErrorObject } from '../../common';
 import { UserModel } from './schema.js';
 import _ from 'lodash';
-import { Auth, SendGrid } from '../../services';
+import { Auth, SendGrid, ReCaptcha } from '../../services';
 import config from '../../config.js';
 
 /**
@@ -30,7 +30,8 @@ class userController {
 
         try {
 
-            // @todo: #8 Better to include google recaptcha here
+            await ReCaptcha.verifyRecaptcha(req.body.captcha);
+
             const verificationCode = this.generateVerificationCode();
             const newUser = await this.model.createEntity({
                 email: userEmail,
@@ -39,11 +40,11 @@ class userController {
                 verificationCode,
                 password
             });
-            // @TODO: #3 you should send the verification code to user by email
             const templateTags = [
-                {name: "__USERNAME", value: newUser.email},
-                {name: "__VERIFICATION_CODE", value: verificationCode},
-            ]
+                { name: "__USERNAME", value: newUser.email },
+                { name: "__VERIFICATION_CODE", value: verificationCode },
+            ];
+
             SendGrid.sendMailByTemplate(
                 'Verification Code',
                 'verification-code',
