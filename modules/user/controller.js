@@ -1,10 +1,9 @@
 import { createHash } from 'node:crypto'
-import { ModelFactory, handleError } from '../../common/index.js';
+import { ModelFactory, handleError, createErrorObject } from '../../common/index.js';
 import { UserModel } from './schema.js';
 import _ from 'lodash';
-import { Auth } from '../../services/index.js';
+import { Auth, SendGrid, ReCaptcha } from '../../services/index.js';
 import config from '../../config.js';
-import sendGrid from '../../services/sendGrid.js';
 
 /**
  * Define Sample module
@@ -23,16 +22,16 @@ class userController {
         this.errorHandler = handleError;
     }
 
-    signup = async ({ body: { email, name, lastName, password } }, res) => {
+    signup = async ({ body: { email, name, lastName, password, captcha } }, res) => {
 
         const userEmail = email.toLowerCase();
         const userName = name.toLowerCase();
         const userLastname = lastName.toLowerCase();
-        const sendgrid = sendGrid();
 
         try {
 
-            // @todo: #8 Better to include google recaptcha here
+            await ReCaptcha.verifyRecaptcha(captcha);
+
             const verificationCode = this.generateVerificationCode();
             const newUser = await this.model.createEntity({
                 email: userEmail,
@@ -41,12 +40,12 @@ class userController {
                 verificationCode,
                 password
             });
-            // @TODO: #3 you should send the verification code to user by email
             const templateTags = [
-                {name: "__USERNAME", value: newUser.email},
-                {name: "__VERIFICATION_CODE", value: verificationCode},
-            ]
-            sendgrid.sendMailByTemplate(
+                { name: "__USERNAME", value: newUser.email },
+                { name: "__VERIFICATION_CODE", value: verificationCode },
+            ];
+
+            SendGrid.sendMailByTemplate(
                 'Verification Code',
                 'verification-code',
                 templateTags,
@@ -59,7 +58,7 @@ class userController {
             // if we get duplicate error message from mongoose, we handle different response
             if (errorMessage && errorMessage.includes('duplicate key error')) {
                 const user = await this.model.findEntityByParams({ email: userEmail }, { verified: true });
-                this.errorHandler(createErrorObject({ msg: 'user Already Registered.' }, { verified: user.verified }), res);
+                this.errorHandler(createErrorObject({ options: { msg: 'user Already Registered.' }, additionalInfo: { verified: user.verified } }), res);
             } else {
                 this.errorHandler(error, res);
             }
@@ -71,7 +70,7 @@ class userController {
      * @param {*} req 
      * @param {*} res 
      */
-    resendVerification = async(req, res) => {
+    resendVerification = async (req, res) => {
         try {
             const userEmail = req.body.email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail });
