@@ -9,7 +9,7 @@ const filePath = dirname(fileURLToPath(import.meta.url));
 
 sgMail.setApiKey(config.SENDGRID_API_KEY);
 
-class SendGrid {
+class SendGridClass {
   /**
    * Sends an email.
    * @param {string} subject - The subject of the email.
@@ -63,4 +63,4 @@ class SendGrid {
   };
 }
 
-export default () => new SendGrid();
+export const SendGrid = new SendGridClass();
