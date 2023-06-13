@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { ModelFactory, handleError } from '../../common/index.js';
+import { ModelFactory, handleError, createErrorObject } from '../../common';
 import { UserModel } from './schema.js';
 import _ from 'lodash';
 import { Auth } from '../../services/index.js';
@@ -59,7 +59,7 @@ class userController {
             // if we get duplicate error message from mongoose, we handle different response
             if (errorMessage && errorMessage.includes('duplicate key error')) {
                 const user = await this.model.findEntityByParams({ email: userEmail }, { verified: true });
-                this.errorHandler(createErrorObject({ msg: 'user Already Registered.' }, { verified: user.verified }), res);
+                this.errorHandler(createErrorObject({ options: { msg: 'user Already Registered.' }, additionalInfo: { verified: user.verified } }), res);
             } else {
                 this.errorHandler(error, res);
             }
@@ -71,7 +71,7 @@ class userController {
      * @param {*} req 
      * @param {*} res 
      */
-    resendVerification = async(req, res) => {
+    resendVerification = async (req, res) => {
         try {
             const userEmail = req.body.email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail });
