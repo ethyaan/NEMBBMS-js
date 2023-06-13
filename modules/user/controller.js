@@ -22,7 +22,7 @@ class userController {
         this.errorHandler = handleError;
     }
 
-    signup = async ({ body: { email, name, lastName, password } }, res) => {
+    signup = async ({ body: { email, name, lastName, password, captcha } }, res) => {
 
         const userEmail = email.toLowerCase();
         const userName = name.toLowerCase();
@@ -30,7 +30,7 @@ class userController {
 
         try {
 
-            await ReCaptcha.verifyRecaptcha(req.body.captcha);
+            await ReCaptcha.verifyRecaptcha(captcha);
 
             const verificationCode = this.generateVerificationCode();
             const newUser = await this.model.createEntity({
