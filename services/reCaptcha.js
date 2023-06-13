@@ -37,4 +37,4 @@ class GoogleReCaptchaService {
         });
     }
 }
-export default new GoogleReCaptchaService();
+export const ReCaptcha =  new GoogleReCaptchaService();
