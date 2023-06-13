@@ -49,10 +49,6 @@ class SendGrid {
     from
   ) => {
     try {
-      templateTags.push({
-        name: "___ASSET_URL",
-        value: this._CONFIG.backendAddress,
-      });
       let template = fs.readFileSync(
         path.join(filePath, `${templateName}.html`)
       );

@@ -51,7 +51,7 @@ class userController {
                 'verification-code',
                 templateTags,
                 [newUser.email],
-                'no-reply@bounce.lingemy.com'
+                'no-reply@site.com'
             );
             res.send({ username: newUser.email, verificationCodeDate: newUser.verificationCodeDate });
         } catch (error) {
