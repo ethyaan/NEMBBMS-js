@@ -1,7 +1,7 @@
 "use strict";
 import https from 'node:https';
-import config from "../config";
-import { createErrorObject } from '../common';
+import config from "../config.js";
+import { createErrorObject } from '../common/index.js';
 
 class GoogleReCaptchaService {
 
@@ -37,4 +37,4 @@ class GoogleReCaptchaService {
         });
     }
 }
-export const ReCaptcha =  new GoogleReCaptchaService();
+export const ReCaptcha = new GoogleReCaptchaService();
