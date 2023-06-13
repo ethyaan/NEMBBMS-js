@@ -2,9 +2,8 @@ import { createHash } from 'node:crypto'
 import { ModelFactory, handleError, createErrorObject } from '../../common';
 import { UserModel } from './schema.js';
 import _ from 'lodash';
-import { Auth } from '../../services/index.js';
+import { Auth, SendGrid } from '../../services';
 import config from '../../config.js';
-import sendGrid from '../../services/sendGrid.js';
 
 /**
  * Define Sample module
@@ -28,7 +27,6 @@ class userController {
         const userEmail = email.toLowerCase();
         const userName = name.toLowerCase();
         const userLastname = lastName.toLowerCase();
-        const sendgrid = sendGrid();
 
         try {
 
@@ -46,7 +44,7 @@ class userController {
                 {name: "__USERNAME", value: newUser.email},
                 {name: "__VERIFICATION_CODE", value: verificationCode},
             ]
-            sendgrid.sendMailByTemplate(
+            SendGrid.sendMailByTemplate(
                 'Verification Code',
                 'verification-code',
                 templateTags,
