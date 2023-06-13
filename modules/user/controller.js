@@ -4,6 +4,7 @@ import { UserModel } from './schema.js';
 import _ from 'lodash';
 import { Auth } from '../../services/index.js';
 import config from '../../config.js';
+import sendGrid from '../../services/sendGrid.js';
 
 /**
  * Define Sample module
@@ -27,6 +28,7 @@ class userController {
         const userEmail = email.toLowerCase();
         const userName = name.toLowerCase();
         const userLastname = lastName.toLowerCase();
+        const sendgrid = sendGrid();
 
         try {
 
@@ -40,6 +42,17 @@ class userController {
                 password
             });
             // @TODO: #3 you should send the verification code to user by email
+            const templateTags = [
+                {name: "__USERNAME", value: newUser.email},
+                {name: "__VERIFICATION_CODE", value: verificationCode},
+            ]
+            sendgrid.sendMailByTemplate(
+                'Verification Code',
+                'verification-code',
+                templateTags,
+                [newUser.email],
+                'no-reply@site.com'
+            );
             res.send({ username: newUser.email, verificationCodeDate: newUser.verificationCodeDate });
         } catch (error) {
             const errorMessage = _.get(error, 'errorObj.additionalInformation.message', false);
