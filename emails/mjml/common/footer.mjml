@@ -1,0 +1,16 @@
+<mj-section>
+    <mj-column>
+        <mj-text font-size="14px" line-height="20px" color="#9D9D9D">
+            This email was sent to
+            <span style="color: #2969ff">{{userEmail}}</span>. if you think you
+            have received this email wrongly, please ignore this email.
+        </mj-text>
+
+        <mj-text font-size="14px" line-height="20px" color="#9D9D9D">
+            <p class="mobile-center">
+                With love from planet Earth <br />
+                © 2023 <a href="{{siteURL}}"> Archetype </a>
+            </p>
+        </mj-text>
+    </mj-column>
+</mj-section>
