@@ -1,0 +1,41 @@
+<mj-section>
+    <mj-column>
+        <mj-text>
+            <a class="logo" href="{{siteURL}}" width="120px" height="42px"
+                >Archetype</a
+            >
+        </mj-text>
+    </mj-column>
+    <mj-column css-class="socials">
+        <mj-social icon-size="24px" padding-top="25px" align="right">
+            <mj-social-element
+                href="{{facebookURL}}"
+                target="_blank"
+                src="https://imgtr.ee/images/2023/06/13/QXMsI.png"
+            >
+            </mj-social-element>
+            <mj-social-element
+                href="{{linkedinURL}}"
+                target="_blank"
+                src="https://imgtr.ee/images/2023/06/13/QXob7.png"
+            >
+            </mj-social-element>
+            <mj-social-element
+                href="{{instagramURL}}"
+                target="_blank"
+                src="https://imgtr.ee/images/2023/06/13/QXROb.png"
+            >
+            </mj-social-element>
+        </mj-social>
+    </mj-column>
+</mj-section>
+<mj-section padding-top="0" padding-bottom="0">
+    <mj-column>
+        <mj-image
+            padding-top="0"
+            padding-bottom="0"
+            src="https://imgtr.ee/images/2023/06/13/QXqAA.png"
+        >
+        </mj-image>
+    </mj-column>
+</mj-section>
