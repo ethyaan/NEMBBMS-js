@@ -42,7 +42,7 @@ class userController {
             });
             const templateTags = [
                 { name: "__USERNAME", value: newUser.email },
-                { name: "__VERIFICATION_CODE", value: verificationCode },
+                { name: "__CONFIRMATION_URL", value: verificationCode },
             ];
 
             SendGrid.sendMailByTemplate(
@@ -243,7 +243,18 @@ class userController {
                     verificationCodeDate
                 });
 
-                // @TODO: #9 we should send verification email here
+                const templateTags = [
+                    { name: "__USERNAME", value: userInfo.email },
+                    { name: "__VERIFICATION_CODE", value: verificationCode },
+                ];
+    
+                SendGrid.sendMailByTemplate(
+                    'Forgot your password?',
+                    'forget-password',
+                    templateTags,
+                    [newUser.email],
+                    'no-reply@site.com'
+                );
 
                 res.send({ success: true, verificationCodeDate });
             } else {
