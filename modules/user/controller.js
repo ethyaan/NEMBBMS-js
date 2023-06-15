@@ -46,8 +46,8 @@ class userController {
             ];
 
             SendGrid.sendMailByTemplate(
-                'Verification Code',
-                'verification-code',
+                'Welcome - Confirm your email address',
+                'signup',
                 templateTags,
                 [newUser.email],
                 'no-reply@site.com'
@@ -87,7 +87,18 @@ class userController {
                         verificationCode,
                         verificationCodeDate
                     });
-                    // @TODO: #4 Send Verification Email
+                    const templateTags = [
+                        { name: "__USERNAME", value: userInfo.email },
+                        { name: "__VERIFICATION_CODE", value: verificationCode },
+                    ];
+        
+                    SendGrid.sendMailByTemplate(
+                        'Confirm your email address',
+                        'signup-confirmation',
+                        templateTags,
+                        [newUser.email],
+                        'no-reply@site.com'
+                    );
                 }
                 res.send({ status: 'success', verificationCodeDate });
             }
