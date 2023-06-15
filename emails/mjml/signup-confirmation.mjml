@@ -37,7 +37,7 @@
             >
                 <mj-text><h2>Confirm your E-Mail</h2></mj-text>
                 <mj-text font-size="16px" line-height="24px">
-                    <p>Dear {{userName}}</p>
+                    <p>Dear __USERNAME</p>
                     <p>
                         We have send this email to your mailbox to confirm your
                         emial and activate your account. <br />
@@ -58,7 +58,7 @@
                     align="left"
                     color="white"
                     height="50px"
-                    href="{{confirmURL}}"
+                    href="__CONFIRMATION_URL"
                 >
                     Confirm My Email
                 </mj-button>
