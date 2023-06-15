@@ -42,7 +42,7 @@ class userController {
             });
             const templateTags = [
                 { name: "__USERNAME", value: newUser.email },
-                { name: "__CONFIRMATION_URL", value: verificationCode },
+                { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
             ];
 
             SendGrid.sendMailByTemplate(
@@ -89,7 +89,7 @@ class userController {
                     });
                     const templateTags = [
                         { name: "__USERNAME", value: userInfo.email },
-                        { name: "__CONFIRMATION_URL", value: verificationCode },
+                        { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
                     ];
         
                     SendGrid.sendMailByTemplate(
@@ -172,7 +172,6 @@ class userController {
         res.send({ name, lastName, email });
     }
 
-
     /**
      * change user password
      * @param req
@@ -245,7 +244,7 @@ class userController {
 
                 const templateTags = [
                     { name: "__USERNAME", value: userInfo.email },
-                    { name: "__RESET_URL", value: verificationCode },
+                    { name: "__RESET_URL", value: verificationCode },  // Todo: #44 is here
                 ];
 
                 SendGrid.sendMailByTemplate(
