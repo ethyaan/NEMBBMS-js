@@ -245,9 +245,9 @@ class userController {
 
                 const templateTags = [
                     { name: "__USERNAME", value: userInfo.email },
-                    { name: "__VERIFICATION_CODE", value: verificationCode },
+                    { name: "__RESET_URL", value: verificationCode },
                 ];
-    
+
                 SendGrid.sendMailByTemplate(
                     'Forgot your password?',
                     'forget-password',
