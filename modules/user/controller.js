@@ -42,12 +42,12 @@ class userController {
             });
             const templateTags = [
                 { name: "__USERNAME", value: newUser.email },
-                { name: "__VERIFICATION_CODE", value: verificationCode },
+                { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
             ];
 
             SendGrid.sendMailByTemplate(
-                'Verification Code',
-                'verification-code',
+                'Welcome - Confirm your email address',
+                'signup',
                 templateTags,
                 [newUser.email],
                 'no-reply@site.com'
@@ -87,7 +87,18 @@ class userController {
                         verificationCode,
                         verificationCodeDate
                     });
-                    // @TODO: #4 Send Verification Email
+                    const templateTags = [
+                        { name: "__USERNAME", value: userInfo.email },
+                        { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
+                    ];
+        
+                    SendGrid.sendMailByTemplate(
+                        'Confirm your email address',
+                        'signup-confirmation',
+                        templateTags,
+                        [newUser.email],
+                        'no-reply@site.com'
+                    );
                 }
                 res.send({ status: 'success', verificationCodeDate });
             }
@@ -161,7 +172,6 @@ class userController {
         res.send({ name, lastName, email });
     }
 
-
     /**
      * change user password
      * @param req
@@ -232,7 +242,18 @@ class userController {
                     verificationCodeDate
                 });
 
-                // @TODO: #9 we should send verification email here
+                const templateTags = [
+                    { name: "__USERNAME", value: userInfo.email },
+                    { name: "__RESET_URL", value: verificationCode },  // Todo: #44 is here
+                ];
+
+                SendGrid.sendMailByTemplate(
+                    'Forgot your password?',
+                    'forget-password',
+                    templateTags,
+                    [newUser.email],
+                    'no-reply@site.com'
+                );
 
                 res.send({ success: true, verificationCodeDate });
             } else {

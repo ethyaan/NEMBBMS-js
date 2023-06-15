@@ -35,9 +35,9 @@
                 padding="30px 25px"
                 border-radius="0 0 15px 15px"
             >
-                <mj-text><h2>Confirm your E-Mail</h2></mj-text>
+                <mj-text><h2>Welcome to Archetype</h2></mj-text>
                 <mj-text font-size="16px" line-height="24px">
-                    <p>Dear {{userName}}</p>
+                    <p>Dear __USERNAME</p>
                     <p>
                         Welcome to Archetype, we have send this email to your
                         mailbox to confirm your registration and activate your
@@ -59,7 +59,7 @@
                     align="left"
                     color="white"
                     height="50px"
-                    href="{{confirmURL}}"
+                    href="__CONFIRMATION_URL"
                 >
                     Confirm My Email
                 </mj-button>
