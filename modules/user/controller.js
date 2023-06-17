@@ -42,18 +42,22 @@ class userController {
                 verificationCode,
                 password
             });
-            const templateTags = [
-                { name: "__USERNAME", value: newUser.email },
-                { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
-            ];
 
-            SendGrid.sendMailByTemplate(
-                'Welcome - Confirm your email address',
-                'signup',
-                templateTags,
-                [newUser.email],
-                'no-reply@site.com'
-            );
+            if (process.env.NODE_ENV !== 'test') {
+                const templateTags = [
+                    { name: "__USERNAME", value: newUser.email },
+                    { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
+                ];
+
+                SendGrid.sendMailByTemplate(
+                    'Welcome - Confirm your email address',
+                    'signup',
+                    templateTags,
+                    [newUser.email],
+                    'no-reply@site.com'
+                );
+            }
+
             res.send({ username: newUser.email, verificationCodeDate: newUser.verificationCodeDate });
         } catch (error) {
             const errorMessage = _.get(error, 'errorObj.additionalInformation.message', false);
