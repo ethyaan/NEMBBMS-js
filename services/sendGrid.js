@@ -3,9 +3,7 @@ import path from "path";
 import { Logger } from "../common/index.js";
 import sgMail from "@sendgrid/mail";
 import config from "../config.js";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-const filePath = dirname(fileURLToPath(import.meta.url));
+const tempalteDir = `emails/html`;
 
 sgMail.setApiKey(config.SENDGRID_API_KEY);
 
@@ -50,7 +48,7 @@ class SendGridClass {
   ) => {
     try {
       let template = fs.readFileSync(
-        path.join(filePath, `${templateName}.html`)
+        path.join(tempalteDir, `${templateName}.html`)
       );
       template = template.toString();
       templateTags.forEach((tag) => {
