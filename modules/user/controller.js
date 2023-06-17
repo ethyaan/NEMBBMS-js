@@ -30,7 +30,9 @@ class userController {
 
         try {
 
-            await ReCaptcha.verifyRecaptcha(captcha);
+            if (process.env.NODE_ENV !== 'test') {
+                await ReCaptcha.verifyRecaptcha(captcha);
+            }
 
             const verificationCode = this.generateVerificationCode();
             const newUser = await this.model.createEntity({
@@ -91,7 +93,7 @@ class userController {
                         { name: "__USERNAME", value: userInfo.email },
                         { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
                     ];
-        
+
                     SendGrid.sendMailByTemplate(
                         'Confirm your email address',
                         'signup-confirmation',
