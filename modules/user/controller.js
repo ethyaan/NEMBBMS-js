@@ -60,7 +60,7 @@ class userController {
 
             res.send({ username: newUser.email, verificationCodeDate: newUser.verificationCodeDate });
         } catch (error) {
-            const errorMessage = _.get(error, 'errorObj.additionalInformation.message', false);
+            const errorMessage = _.get(error, 'errorMessage', false);
             // if we get duplicate error message from mongoose, we handle different response
             if (errorMessage && errorMessage.includes('duplicate key error')) {
                 const user = await this.model.findEntityByParams({ email: userEmail }, { verified: true });
