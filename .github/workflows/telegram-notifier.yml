@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Notifier
-        uses: ethyaan/tgate-action@beta
+        uses: ethyaan/tgate-action@v1.0.0
         if: always()
         with:
          token: ${{secrets.token}}
