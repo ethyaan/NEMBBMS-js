@@ -24,6 +24,186 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
+  /user/resendVerification:
+    post:
+      summary: Resend verification email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendVerificationRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResendVerificationResponse'
+        '4XX':
+          description: Invalid request body or Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+  /user/verify:
+    post:
+      summary: Verify user's email with verification code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyResponse'
+        '4XX':
+          description: Invalid request body or Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+  /user/login:
+    post:
+      summary: User login
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '4XX':
+          description: Invalid request body or Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+  /user/changePassword:
+    post:
+      summary: Change user's password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangePasswordResponse'
+        '4XX':
+          description: Invalid request body or Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+  /user/updateProfile:
+    post:
+      summary: Update user's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateProfileResponse'
+        '4XX':
+          description: Invalid request body or Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+  /user/forgetPassword:
+    post:
+      summary: Send verification code for password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgetPasswordRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForgetPasswordResponse'
+        '4XX':
+          description: Invalid request body or Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+  /user/setNewPassword:
+    post:
+      summary: Set new password using verification code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetNewPasswordRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetNewPasswordResponse'
+        '4XX':
+          description: Invalid request body or Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+  /user/getProfile:
+    get:
+      summary: Get user profile information
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetProfileResponse'
+        '4XX':
+          description: Invalid request body or Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
 
 components:
   schemas:
@@ -34,6 +214,7 @@ components:
         - lastName
         - email
         - password
+        - captcha
       properties:
         name:
           type: string
@@ -48,6 +229,9 @@ components:
         password:
           type: string
           description: User password
+        captcha:
+          type: string
+          description: Google Recaptcha challenge
     SignupResponse:
       type: object
       properties:
@@ -70,3 +254,138 @@ components:
         additionalInfo:
           type: object
           description: any additional info
+    ResendVerificationRequest:
+      type: object
+      required:
+          - email
+      properties:
+        email:
+          type: string
+          format: email
+    ResendVerificationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [success, failed]
+        verificationCodeDate:
+          type: string
+          format: date-time
+    VerifyRequest:
+      type: object
+      required:
+        - email
+        - code
+      properties:
+        email:
+          type: string
+          format: email
+        code:
+          type: string
+    VerifyResponse:
+      type: object
+      properties:
+        verified:
+          type: boolean
+        email:
+          type: string
+          format: email
+        code:
+          type: string
+    LoginResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+    ChangePasswordRequest:
+      type: object
+      required:
+        - password
+        - new
+      properties:
+        password:
+          type: string
+          format: password
+        new:
+          type: string
+          format: password
+    ChangePasswordResponse:
+      properties:
+        status:
+          type: boolean
+    UpdateProfileRequest:
+      type: object
+      required:
+        - name
+        - lastName
+      properties:
+        name:
+          type: string
+        lastName:
+          type: string
+    UpdateProfileResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    ForgetPasswordRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+    ForgetPasswordResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        verficationCodeDate:
+          type: string
+          format: date-time
+    SetNewPasswordRequest:
+      type: object
+      required:
+        - email
+        - code
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        code:
+          type: string
+        password:
+          type: string
+    SetNewPasswordResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+    GetProfileResponse:
+      type: object
+      required:
+        - message
+        - data
+      properties:
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            email:
+              type: string
+            createdAt:
+              type: string
+            updatedAt:
+              type: string

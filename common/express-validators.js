@@ -37,6 +37,8 @@ export const emailValidator = body('email').isEmail().withMessage('please enter 
 
 export const codeValidator = body('code').exists({ checkFalsy: true, checkNull: true }).withMessage('code is not valid');
 
+export const captchaValidator = body('captcha').exists({ checkFalsy: true, checkNull: true }).withMessage('Captcha is not valid');
+
 export const passwordValidaotr = body('password').exists({ checkFalsy: true, checkNull: true })
     .withMessage('please enter valid password')
     .isLength({ min: 6 }).withMessage('password must be atleast 6 character');

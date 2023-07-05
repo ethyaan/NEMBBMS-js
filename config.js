@@ -2,8 +2,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const env = process.env;
+
+const logTypes = process.env.NODE_ENV !== 'test' ? ['error', 'info', 'warn', 'log', 'success', 'validation'] : [];
 export default {
-	LOG_TYPES: ['error', 'info', 'warn', 'log', 'success', 'validation'],
+	LOG_TYPES: logTypes,
 	PORT: env.PORT,
 	MONGO_URI: env.MONGO_URI,
 	DBNAME: env.DBNAME,
@@ -12,4 +14,5 @@ export default {
 	// AUTH_TABLE_NAME: env.AUTH_TABLE_NAME,
 	JWT_SECRET: env.JWT_SECRET,
 	SENDGRID_API_KEY: env.SENDGRID_API_KEY,
+	RECAPTCHA_KEY: env.RECAPTCHA_KEY
 };

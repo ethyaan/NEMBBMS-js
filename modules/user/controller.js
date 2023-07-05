@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto'
-import { ModelFactory, handleError } from '../../common/index.js';
+import { ModelFactory, handleError, createErrorObject } from '../../common/index.js';
 import { UserModel } from './schema.js';
 import _ from 'lodash';
-import { Auth } from '../../services/index.js';
+import { Auth, SendGrid, ReCaptcha } from '../../services/index.js';
 import config from '../../config.js';
 
 /**
@@ -22,7 +22,7 @@ class userController {
         this.errorHandler = handleError;
     }
 
-    signup = async ({ body: { email, name, lastName, password } }, res) => {
+    signup = async ({ body: { email, name, lastName, password, captcha } }, res) => {
 
         const userEmail = email.toLowerCase();
         const userName = name.toLowerCase();
@@ -30,7 +30,10 @@ class userController {
 
         try {
 
-            // @todo: #8 Better to include google recaptcha here
+            if (process.env.NODE_ENV !== 'test') {
+                await ReCaptcha.verifyRecaptcha(captcha);
+            }
+
             const verificationCode = this.generateVerificationCode();
             const newUser = await this.model.createEntity({
                 email: userEmail,
@@ -39,14 +42,29 @@ class userController {
                 verificationCode,
                 password
             });
-            // @TODO: #3 you should send the verification code to user by email
+
+            if (process.env.NODE_ENV !== 'test') {
+                const templateTags = [
+                    { name: "__USERNAME", value: newUser.email },
+                    { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
+                ];
+
+                SendGrid.sendMailByTemplate(
+                    'Welcome - Confirm your email address',
+                    'signup',
+                    templateTags,
+                    [newUser.email],
+                    'no-reply@site.com'
+                );
+            }
+
             res.send({ username: newUser.email, verificationCodeDate: newUser.verificationCodeDate });
         } catch (error) {
-            const errorMessage = _.get(error, 'errorObj.additionalInformation.message', false);
+            const errorMessage = _.get(error, 'errorMessage', false);
             // if we get duplicate error message from mongoose, we handle different response
             if (errorMessage && errorMessage.includes('duplicate key error')) {
                 const user = await this.model.findEntityByParams({ email: userEmail }, { verified: true });
-                this.errorHandler(createErrorObject({ msg: 'user Already Registered.' }, { verified: user.verified }), res);
+                this.errorHandler(createErrorObject({ options: { msg: 'user Already Registered.' }, additionalInfo: { verified: user.verified } }), res);
             } else {
                 this.errorHandler(error, res);
             }
@@ -58,7 +76,7 @@ class userController {
      * @param {*} req 
      * @param {*} res 
      */
-    async resendVerification(req, res) {
+    resendVerification = async (req, res) => {
         try {
             const userEmail = req.body.email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail });
@@ -75,7 +93,18 @@ class userController {
                         verificationCode,
                         verificationCodeDate
                     });
-                    // @TODO: #4 Send Verification Email
+                    const templateTags = [
+                        { name: "__USERNAME", value: userInfo.email },
+                        { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
+                    ];
+
+                    SendGrid.sendMailByTemplate(
+                        'Confirm your email address',
+                        'signup-confirmation',
+                        templateTags,
+                        [newUser.email],
+                        'no-reply@site.com'
+                    );
                 }
                 res.send({ status: 'success', verificationCodeDate });
             }
@@ -89,7 +118,7 @@ class userController {
      * @param req
      * @param res
      */
-    async verify(req, res) {
+    verify = async (req, res) => {
         try {
             const code = req.body.code;
             const userInfo = await this.model.findEntityByParams({
@@ -117,7 +146,7 @@ class userController {
      * @param res
      * @param next
      */
-    async userAuth({ body: { email, password } }, res, next) {
+    userAuth = async ({ body: { email, password } }, res, next) => {
         try {
             const userEmail = email.toLowerCase();
             const pwd = this.sha256(password);
@@ -145,17 +174,16 @@ class userController {
      * @param req
      * @param res
      */
-    async login({ _user: { name = ``, lastName = ``, email = `` } }, res) {
+    login = async ({ _user: { name = ``, lastName = ``, email = `` } }, res) => {
         res.send({ name, lastName, email });
     }
-
 
     /**
      * change user password
      * @param req
      * @param res
      */
-    async changeUserPassword({ _user, body: { password, new: newPWD } }, res) {
+    changeUserPassword = async ({ _user, body: { password, new: newPWD } }, res) => {
         try {
             const userInfo = await this.model.findEntityByParams({ _id: _user._id });
             const currentPassword = this.sha256(password);
@@ -181,7 +209,7 @@ class userController {
      * @param req
      * @param res
      */
-    async updateProfile({ _user, body: { name, lastName } }, res) {
+    updateProfile = async ({ _user, body: { name, lastName } }, res) => {
         try {
             const userInfo = await this.model.findEntityByParams({ _id: _user._id });
             await this.model.updateEntityByModel(userInfo, { name, lastName });
@@ -196,7 +224,7 @@ class userController {
      * @param req
      * @param res
      */
-    async forgetPassword({ body: { email } }, res) {
+    forgetPassword = async ({ body: { email } }, res) => {
         try {
             const userEmail = email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail }, { password: false });
@@ -220,7 +248,18 @@ class userController {
                     verificationCodeDate
                 });
 
-                // @TODO: #9 we should send verification email here
+                const templateTags = [
+                    { name: "__USERNAME", value: userInfo.email },
+                    { name: "__RESET_URL", value: verificationCode },  // Todo: #44 is here
+                ];
+
+                SendGrid.sendMailByTemplate(
+                    'Forgot your password?',
+                    'forget-password',
+                    templateTags,
+                    [newUser.email],
+                    'no-reply@site.com'
+                );
 
                 res.send({ success: true, verificationCodeDate });
             } else {
@@ -241,7 +280,7 @@ class userController {
      * @param req
      * @param res
      */
-    async setNewPassword({ body: { email, code, password } }, res) {
+    setNewPassword = async ({ body: { email, code, password } }, res) => {
         try {
             const userEmail = email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail });
@@ -277,7 +316,7 @@ class userController {
      * @param req
      * @param res
      */
-    async getProfile({ _user: { _id } }, res) {
+    getProfile = async ({ _user: { _id } }, res) => {
         try {
             const userProfile = await this.model.findEntityByParams({ _id }, {
                 _id: 0, password: 0, verificationCode: 0, verificationCodeDate: 0, verified: 0
@@ -291,7 +330,7 @@ class userController {
     /**
      * generate a 6 digit verification code
      */
-    generateVerificationCode() {
+    generateVerificationCode = () => {
         return Math.floor(100000 + Math.random() * 900000);
     }
 
@@ -300,7 +339,7 @@ class userController {
      * @param {*} content 
      * @returns 
      */
-    sha256(content) {
+    sha256 = (content) => {
         return createHash('sha256').update(content).digest('hex');
     }
 

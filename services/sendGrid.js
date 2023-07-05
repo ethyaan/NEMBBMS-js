@@ -1,13 +1,13 @@
 import fs from "fs";
 import path from "path";
-import logger from "./logger";
+import { Logger } from "../common/index.js";
 import sgMail from "@sendgrid/mail";
-import config from "../config";
-const filePath = path.join(__dirname, "../email-templates");
+import config from "../config.js";
+const tempalteDir = `emails/html`;
 
 sgMail.setApiKey(config.SENDGRID_API_KEY);
 
-class SendGrid {
+class SendGridClass {
   /**
    * Sends an email.
    * @param {string} subject - The subject of the email.
@@ -25,9 +25,9 @@ class SendGrid {
 
     try {
       await sgMail.sendMultiple(msg);
-      logger.success("Mail Sent To :", emailAddressList);
+      Logger.success("Mail Sent To :", emailAddressList);
     } catch (error) {
-      logger.error("Error In Sending Mail", error);
+      Logger.error("Error In Sending Mail", error);
     }
   };
 
@@ -47,12 +47,8 @@ class SendGrid {
     from
   ) => {
     try {
-      templateTags.push({
-        name: "___ASSET_URL",
-        value: this._CONFIG.backendAddress,
-      });
       let template = fs.readFileSync(
-        path.join(filePath, `${templateName}.html`)
+        path.join(tempalteDir, `${templateName}.html`)
       );
       template = template.toString();
       templateTags.forEach((tag) => {
@@ -60,9 +56,9 @@ class SendGrid {
       });
       this.sendMail(subject, template, emailAddressList, from);
     } catch (e) {
-      logger.error("Error in sending e-mail By Template", e.toString());
+      Logger.error("Error in sending e-mail By Template", e.toString());
     }
   };
 }
 
-export default (app) => new SendGrid(app);
+export const SendGrid = new SendGridClass();
