@@ -214,6 +214,7 @@ components:
         - lastName
         - email
         - password
+        - captcha
       properties:
         name:
           type: string
@@ -228,6 +229,9 @@ components:
         password:
           type: string
           description: User password
+        captcha:
+          type: string
+          description: Google Recaptcha challenge
     SignupResponse:
       type: object
       properties:

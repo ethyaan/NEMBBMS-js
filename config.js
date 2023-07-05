@@ -2,8 +2,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const env = process.env;
+
+const logTypes = process.env.NODE_ENV !== 'test' ? ['error', 'info', 'warn', 'log', 'success', 'validation'] : [];
 export default {
-	LOG_TYPES: ['error', 'info', 'warn', 'log', 'success', 'validation'],
+	LOG_TYPES: logTypes,
 	PORT: env.PORT,
 	MONGO_URI: env.MONGO_URI,
 	DBNAME: env.DBNAME,

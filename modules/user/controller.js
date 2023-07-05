@@ -30,7 +30,9 @@ class userController {
 
         try {
 
-            await ReCaptcha.verifyRecaptcha(captcha);
+            if (process.env.NODE_ENV !== 'test') {
+                await ReCaptcha.verifyRecaptcha(captcha);
+            }
 
             const verificationCode = this.generateVerificationCode();
             const newUser = await this.model.createEntity({
@@ -40,21 +42,25 @@ class userController {
                 verificationCode,
                 password
             });
-            const templateTags = [
-                { name: "__USERNAME", value: newUser.email },
-                { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
-            ];
 
-            SendGrid.sendMailByTemplate(
-                'Welcome - Confirm your email address',
-                'signup',
-                templateTags,
-                [newUser.email],
-                'no-reply@site.com'
-            );
+            if (process.env.NODE_ENV !== 'test') {
+                const templateTags = [
+                    { name: "__USERNAME", value: newUser.email },
+                    { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
+                ];
+
+                SendGrid.sendMailByTemplate(
+                    'Welcome - Confirm your email address',
+                    'signup',
+                    templateTags,
+                    [newUser.email],
+                    'no-reply@site.com'
+                );
+            }
+
             res.send({ username: newUser.email, verificationCodeDate: newUser.verificationCodeDate });
         } catch (error) {
-            const errorMessage = _.get(error, 'errorObj.additionalInformation.message', false);
+            const errorMessage = _.get(error, 'errorMessage', false);
             // if we get duplicate error message from mongoose, we handle different response
             if (errorMessage && errorMessage.includes('duplicate key error')) {
                 const user = await this.model.findEntityByParams({ email: userEmail }, { verified: true });
@@ -91,7 +97,7 @@ class userController {
                         { name: "__USERNAME", value: userInfo.email },
                         { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
                     ];
-        
+
                     SendGrid.sendMailByTemplate(
                         'Confirm your email address',
                         'signup-confirmation',
