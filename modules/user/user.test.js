@@ -38,6 +38,7 @@ describe('User Module', () => {
     });
 
     // below need to be implemented
+
     // '/resendVerification'
     // '/verify'
     // '/login'
