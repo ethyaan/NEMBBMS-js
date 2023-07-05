@@ -343,6 +343,6 @@ class userController {
         return createHash('sha256').update(content).digest('hex');
     }
 
-} 
+}
 
 export default (app) => new userController(app);
