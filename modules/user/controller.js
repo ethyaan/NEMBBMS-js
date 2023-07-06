@@ -27,6 +27,7 @@ class userController {
         const userEmail = email.toLowerCase();
         const userName = name.toLowerCase();
         const userLastname = lastName.toLowerCase();
+        const userPassword = this.sha256(password);
 
         try {
 
@@ -40,7 +41,7 @@ class userController {
                 name: userName,
                 lastName: userLastname,
                 verificationCode,
-                password
+                password: userPassword
             });
 
             if (process.env.NODE_ENV !== 'test') {
@@ -154,23 +155,18 @@ class userController {
      * @param res
      * @param next
      */
-    userAuth = async ({ body: { email, password } }, res, next) => {
+    userAuth = async (req, res, next) => {
         try {
+            const { body: { email, password } } = req;
             const userEmail = email.toLowerCase();
             const pwd = this.sha256(password);
             let userInfo = await this.model.findEntityByParams({ email: userEmail, password: pwd }, { 'password': false });
             if (userInfo === null) {
-                return res.status(400).send({
-                    errorCode: 'AUTHFAILED',
-                    additionalInformation: {
-                        message: 'username or password is wrong!'
-                    }
-                });
+                return res.send({ status: 'failed', message: 'username or password is wrong!' });
             }
-            userInfo = userInfo.toObject();
             const token = await Auth.sign(userInfo);
             res.set('Authorization', token);
-            res._user = userInfo;
+            req._user = userInfo;
             next();
         } catch (error) {
             this.errorHandler(error, res);
@@ -182,7 +178,7 @@ class userController {
      * @param req
      * @param res
      */
-    login = async ({ _user: { name = ``, lastName = ``, email = `` } }, res) => {
+    login = async ({ _user: { name = ``, lastName = ``, email = `` } = {} }, res) => {
         res.send({ name, lastName, email });
     }
 
@@ -289,8 +285,8 @@ class userController {
             const secureKeyDate = new Date(userInfo.verificationCodeDate);
             secureKeyDate.setMinutes(secureKeyDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
             if (userInfo.verificationCode === code && userInfo.verified === true && secureKeyDate.getTime() > Date.now()) {
-                password = (password) ? this.sha256(password).toString() : '';
-                await this.model.updateEntityByModel(userInfo, { password });
+                const newPassword = (password) ? this.sha256(password).toString() : '';
+                await this.model.updateEntityByModel(userInfo, { password: newPassword });
                 res.send({ status: 'success' });
             } else {
                 res.send({ status: 'failed', message: 'invalid or expired request' });
