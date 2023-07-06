@@ -136,6 +136,7 @@ class userController {
             const vcDate = new Date(userInfo.verificationCodeDate);
             vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
             if (userInfo.verificationCode === code && vcDate.getTime() > Date.now()) {
+                await this.model.updateEntityByModel(userInfo, { verified: true });
                 res.send({ verified: true, email: userInfo.email, code: userInfo.verificationCode });
             } else {
                 res.send({ verified: false });
