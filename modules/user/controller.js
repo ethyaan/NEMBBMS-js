@@ -127,22 +127,21 @@ class userController {
      */
     verify = async (req, res) => {
         try {
-            const code = req.body.code;
-            const userInfo = await this.model.findEntityByParams({
-                email: req.body.email.toLowerCase(),
-                verificationCode: code
-            });
+            const code = req.params.code;
+            const userInfo = await this.model.findEntityByParams({ verificationCode: code });
             if (userInfo === null) {
                 return res.send({ verified: false });
             }
             const vcDate = new Date(userInfo.verificationCodeDate);
             vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
+            let frontURL = `${config.APP_FRONT}/confirmation/`;
             if (vcDate.getTime() > Date.now()) {
                 await this.model.updateEntityByModel(userInfo, { verified: true });
-                res.send({ verified: true, email: userInfo.email, code: userInfo.verificationCode });
+                frontURL += `success`;
             } else {
-                res.send({ verified: false });
+                frontURL += `success`;
             }
+            res.redirect(frontURL);
         } catch (error) {
             this.errorHandler(error, res);
         }
