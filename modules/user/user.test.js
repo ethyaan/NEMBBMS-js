@@ -94,7 +94,7 @@ describe('User Module', () => {
     /**
      * negative scenarios
      */
-    test('POST /user/verify/ should fail due to input validation', async () => {
+    test('GET /user/verify/ should fail due to input validation', async () => {
         const req = await request.get('/user/verify/uwjdyuwjk').send();
         expect(req.status).toBe(302);
         expect(req.headers).toHaveProperty('location');
@@ -104,7 +104,7 @@ describe('User Module', () => {
     /**
      * positive scenario
      */
-    test('POST /user/verify/ should verify the user', async () => {
+    test('GET /user/verify/ should verify the user', async () => {
         const { verificationCode } = await userModel.findEntityByParams({ email: newUserData.email });
         const req = await request.get(`/user/verify/${verificationCode}`).send();
         expect(req.status).toBe(302);
@@ -215,6 +215,9 @@ describe('User Module', () => {
         JWTToken = req.header['authorization'];
     });
 
+    /**
+     * negative scenarios
+     */
     test('POST /user/changePassword should fail to action - unathorized', async () => {
         const req = await request.post(`/user/changePassword`).send();
         expect(req.status).toBe(401);
@@ -239,7 +242,7 @@ describe('User Module', () => {
     /**
      * positive scenario
      */
-    test('POST /user/changePassword should succed to action', async () => {
+    test('POST /user/changePassword should succeed to action', async () => {
         const req = await request.post(`/user/changePassword`).set('Authorization', `Basic ${JWTToken}`).send({
             password: 'abcd1234',
             new: newUserData.password
@@ -249,9 +252,38 @@ describe('User Module', () => {
         expect(req.body.status).toEqual('success');
     });
 
-    // below need to be implemented
+    /**
+     * negative scenarios
+     */
+    test('POST /user/updateProfile should fail to action - unathorized', async () => {
+        const req = await request.post(`/user/updateProfile`).send();
+        expect(req.status).toBe(401);
+    });
 
-    // '/updateProfile'
+    test('POST /user/updateProfile should fail to action - validation failure', async () => {
+        const req = await request.post(`/user/updateProfile`).set('Authorization', `Basic ${JWTToken}`).send();
+        expect(req.status).toBe(422);
+        expect(req.body).toHaveProperty('errors');
+    });
 
-    // '/getProfile'
+    /**
+     * positive scenario
+     */
+    test('POST /user/changePassword should succeed to action', async () => {
+        const req = await request.post(`/user/updateProfile`).set('Authorization', `Basic ${JWTToken}`).send({
+            name: 'Ehsan',
+            lastName: 'Roggy'
+        });
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body.status).toEqual('success');
+    });
+
+    test('GET /user/getProfile should succeed to action', async () => {
+        const req = await request.get(`/user/getProfile`).set('Authorization', `Basic ${JWTToken}`).send();
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body).toHaveProperty('data');
+        expect(req.body.status).toEqual('success');
+    });
 });
