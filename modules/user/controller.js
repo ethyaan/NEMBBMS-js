@@ -97,9 +97,11 @@ class userController {
                     });
 
                     if (process.env.NODE_ENV !== 'test') {
+                        const key = this.sha256(verificationCode);
+                        const verificationURL = `${config.APP_URL}/user/verify/${key}`;
                         const templateTags = [
                             { name: "__USERNAME", value: userInfo.email },
-                            { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
+                            { name: "__CONFIRMATION_URL", value: verificationURL },
                         ];
 
                         SendGrid.sendMailByTemplate(
