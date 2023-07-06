@@ -1,5 +1,5 @@
 import { body } from 'express-validator';
-import { V, emailValidator, mobileValidator, codeValidator, nameValidator, lastNameValidator, passwordValidaotr, captchaValidator } from '../../common/index.js';
+import { V, emailValidator, codeValidator, nameValidator, lastNameValidator, passwordValidaotr, captchaValidator } from '../../common/index.js';
 
 export default {
     signup: () => {
@@ -15,7 +15,7 @@ export default {
         return V([emailValidator]);
     },
     verify: () => {
-        return V([emailValidator, codeValidator]);
+        return V([codeValidator]);
     },
     login: () => {
         return V([emailValidator, passwordValidaotr]);
