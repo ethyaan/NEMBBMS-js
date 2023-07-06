@@ -23,11 +23,11 @@ describe('User Module', () => {
      * will not check Recaptcha & will not send any email
      */
     test('POST /user should create a new user', async () => {
-        const newUser = await request.post('/user').send(newUserData);
+        const req = await request.post('/user').send(newUserData);
 
-        expect(newUser.status).toBe(200);
-        expect(newUser.body).toHaveProperty('username');
-        expect(newUser.body).toHaveProperty('verificationCodeDate');
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('username');
+        expect(req.body).toHaveProperty('verificationCodeDate');
     });
 
     /**
@@ -35,55 +35,55 @@ describe('User Module', () => {
      * will check for duplication
      */
     test('POST /user raise duplication error', async () => {
-        const duplicateUser = await request.post('/user').send(newUserData);
+        const req = await request.post('/user').send(newUserData);
 
-        expect(duplicateUser.status).toBe(422);
-        expect(duplicateUser.body).toHaveProperty('errorMessage');
-        expect(duplicateUser.body.errorMessage).toEqual('user Already Registered.');
+        expect(req.status).toBe(422);
+        expect(req.body).toHaveProperty('errorMessage');
+        expect(req.body.errorMessage).toEqual('user Already Registered.');
     });
 
     test('POST /user raise validation error', async () => {
-        const duplicateUser = await request.post('/user').send();
+        const req = await request.post('/user').send();
 
-        expect(duplicateUser.status).toBe(422);
-        expect(duplicateUser.body).toHaveProperty('errors');
+        expect(req.status).toBe(422);
+        expect(req.body).toHaveProperty('errors');
     });
 
     /**
         * positive scenario - depeneded on previous test actions
         */
     test('POST /user/resendVerification update user verification code', async () => {
-        const vUser = await request.post('/user/resendVerification').send({ email: newUserData.email });
+        const req = await request.post('/user/resendVerification').send({ email: newUserData.email });
 
-        expect(vUser.status).toBe(200);
-        expect(vUser.body).toHaveProperty('status');
-        expect(vUser.body).toHaveProperty('verificationCodeDate');
-        expect(vUser.body.status).toEqual('success');
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body).toHaveProperty('verificationCodeDate');
+        expect(req.body.status).toEqual('success');
     });
 
     /**
      * negative scenario
      */
     test('POST /user/resendVerification fail to update user verification code for not existing user', async () => {
-        const vUser = await request.post('/user/resendVerification').send({ email: 'noExists@user.com' });
-        expect(vUser.status).toBe(200);
-        expect(vUser.body).toHaveProperty('status');
-        expect(vUser.body.status).toEqual('failed');
+        const req = await request.post('/user/resendVerification').send({ email: 'noExists@user.com' });
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body.status).toEqual('failed');
     });
 
     test('POST /user/resendVerification should fail due to input validation', async () => {
-        const vUser = await request.post('/user/resendVerification').send();
-        expect(vUser.status).toBe(422);
-        expect(vUser.body).toHaveProperty('errors');
+        const req = await request.post('/user/resendVerification').send();
+        expect(req.status).toBe(422);
+        expect(req.body).toHaveProperty('errors');
     });
 
     test('POST /user/resendVerification should fail because user is already verified', async () => {
         const userInfo = await userModel.findEntityByParams({ email: newUserData.email });
         await userModel.updateEntityByModel(userInfo, { verified: true });
-        const vUser = await request.post('/user/resendVerification').send({ email: newUserData.email });
-        expect(vUser.status).toBe(200);
-        expect(vUser.body).toHaveProperty('status');
-        expect(vUser.body.status).toEqual('failed');
+        const req = await request.post('/user/resendVerification').send({ email: newUserData.email });
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body.status).toEqual('failed');
         await userModel.updateEntityByModel(userInfo, { verified: false });
     });
 
@@ -91,10 +91,10 @@ describe('User Module', () => {
      * negative scenarios
      */
     test('POST /user/verify/ should fail due to input validation', async () => {
-        const vUser = await request.get('/user/verify/uwjdyuwjk').send();
-        expect(vUser.status).toBe(302);
-        expect(vUser.headers).toHaveProperty('location');
-        expect(vUser.headers.location).toEqual(`${config.APP_FRONT}/confirmation/failed`);
+        const req = await request.get('/user/verify/uwjdyuwjk').send();
+        expect(req.status).toBe(302);
+        expect(req.headers).toHaveProperty('location');
+        expect(req.headers.location).toEqual(`${config.APP_FRONT}/confirmation/failed`);
     });
 
     /**
@@ -102,18 +102,46 @@ describe('User Module', () => {
      */
     test('POST /user/verify/ should verify the user', async () => {
         const { verificationCode } = await userModel.findEntityByParams({ email: newUserData.email });
-        const vUser = await request.get(`/user/verify/${verificationCode}`).send();
-        expect(vUser.status).toBe(302);
-        expect(vUser.headers).toHaveProperty('location');
-        expect(vUser.headers.location).toEqual(`${config.APP_FRONT}/confirmation/success`);
+        const req = await request.get(`/user/verify/${verificationCode}`).send();
+        expect(req.status).toBe(302);
+        expect(req.headers).toHaveProperty('location');
+        expect(req.headers.location).toEqual(`${config.APP_FRONT}/confirmation/success`);
     });
 
+    /**
+     * negative scenarios
+     */
+    test('POST /user/forgetPassword should fail submit request', async () => {
+        const req = await request.post(`/user/forgetPassword`).send();
+        expect(req.status).toBe(422);
+        expect(req.body).toHaveProperty('errors');
+    });
+
+    test('POST /user/forgetPassword should fail submit request', async () => {
+        const req = await request.post(`/user/forgetPassword`).send({ email: 'noSuch@user.com' });
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body.status).toEqual('failed');
+    });
+
+    test('POST /user/forgetPassword should successfully submit request', async () => {
+        const req = await request.post(`/user/forgetPassword`).send({ email: newUserData.email });
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body.status).toEqual('success');
+    });
 
     // below need to be implemented
-    // '/login'
-    // '/changePassword'
-    // '/updateProfile'
+
     // '/forgetPassword'
+
     // '/setNewPassword'
+
+    // '/login'
+
+    // '/changePassword'
+
+    // '/updateProfile'
+
     // '/getProfile'
 });

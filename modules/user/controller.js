@@ -237,17 +237,12 @@ class userController {
             const userEmail = email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail }, { password: false });
             if (userInfo === null) {
-                return res.status(400).send({
-                    errorCode: 'AUTHFAILED',
-                    additionalInformation: {
-                        message: 'username is wrong'
-                    }
-                });
+                return res.send({ status: 'failed', message: 'user does not exists' });
             }
             const vcDate = new Date(userInfo.verificationCodeDate);
             vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
             if (Date.now() < vcDate.getTime()) {
-                res.send({ success: true, verificationCodeDate: userInfo.verificationCodeDate });
+                res.send({ status: 'success', verificationCodeDate: userInfo.verificationCodeDate });
             } else if (userInfo.verified === true) {
                 const verificationCode = this.generateVerificationCode();
                 const verificationCodeDate = new Date();
@@ -255,28 +250,24 @@ class userController {
                     verificationCode,
                     verificationCodeDate
                 });
+                if (process.env.NODE_ENV !== 'test') {
+                    const templateTags = [
+                        { name: "__USERNAME", value: userInfo.email },
+                        { name: "__RESET_URL", value: verificationCode },  // Todo: #44 is here
+                    ];
 
-                const templateTags = [
-                    { name: "__USERNAME", value: userInfo.email },
-                    { name: "__RESET_URL", value: verificationCode },  // Todo: #44 is here
-                ];
+                    SendGrid.sendMailByTemplate(
+                        'Forgot your password?',
+                        'forget-password',
+                        templateTags,
+                        [newUser.email],
+                        'no-reply@site.com'
+                    );
+                }
 
-                SendGrid.sendMailByTemplate(
-                    'Forgot your password?',
-                    'forget-password',
-                    templateTags,
-                    [newUser.email],
-                    'no-reply@site.com'
-                );
-
-                res.send({ success: true, verificationCodeDate });
+                res.send({ success: 'success', verificationCodeDate });
             } else {
-                res.status(400).send({
-                    errorCode: 'NOTVERIFIED',
-                    additionalInformation: {
-                        message: 'user not verified!'
-                    }
-                });
+                res.send({ status: 'failed' });
             }
         } catch (error) {
             this.errorHandler(error, res);
