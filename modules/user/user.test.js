@@ -1,7 +1,10 @@
 import supertest from 'supertest';
 import app from '../../app.js';
+import config from '../../config.js';
 import { describe } from 'jest-circus';
 const request = supertest(app);
+import { ModelFactory } from '../../common/index.js';
+import { UserModel } from './schema.js';
 
 const _pawssword = 'A7_c1UzPO.rO';
 const newUserData = {
@@ -11,6 +14,7 @@ const newUserData = {
     password: _pawssword,
     captcha: 'xxx'
 };
+const userModel = new ModelFactory(UserModel);
 
 describe('User Module', () => {
 
@@ -61,7 +65,6 @@ describe('User Module', () => {
      * negative scenario
      */
     test('POST /user/resendVerification fail to update user verification code for not existing user', async () => {
-
         const vUser = await request.post('/user/resendVerification').send({ email: 'noExists@user.com' });
         expect(vUser.status).toBe(200);
         expect(vUser.body).toHaveProperty('status');
@@ -74,9 +77,39 @@ describe('User Module', () => {
         expect(vUser.body).toHaveProperty('errors');
     });
 
+    test('POST /user/resendVerification should fail because user is already verified', async () => {
+        const userInfo = await userModel.findEntityByParams({ email: newUserData.email });
+        await userModel.updateEntityByModel(userInfo, { verified: true });
+        const vUser = await request.post('/user/resendVerification').send({ email: newUserData.email });
+        expect(vUser.status).toBe(200);
+        expect(vUser.body).toHaveProperty('status');
+        expect(vUser.body.status).toEqual('failed');
+        await userModel.updateEntityByModel(userInfo, { verified: false });
+    });
+
+    /**
+     * negative scenarios
+     */
+    test('POST /user/verify/ should fail due to input validation', async () => {
+        const vUser = await request.get('/user/verify/uwjdyuwjk').send();
+        expect(vUser.status).toBe(302);
+        expect(vUser.headers).toHaveProperty('location');
+        expect(vUser.headers.location).toEqual(`${config.APP_FRONT}/confirmation/failed`);
+    });
+
+    /**
+     * positive scenario
+     */
+    test('POST /user/verify/ should verify the user', async () => {
+        const { verificationCode } = await userModel.findEntityByParams({ email: newUserData.email });
+        const vUser = await request.get(`/user/verify/${verificationCode}`).send();
+        expect(vUser.status).toBe(302);
+        expect(vUser.headers).toHaveProperty('location');
+        expect(vUser.headers.location).toEqual(`${config.APP_FRONT}/confirmation/success`);
+    });
+
 
     // below need to be implemented
-    // '/verify'
     // '/login'
     // '/changePassword'
     // '/updateProfile'
