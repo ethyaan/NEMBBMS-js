@@ -131,11 +131,46 @@ describe('User Module', () => {
         expect(req.body.status).toEqual('success');
     });
 
+    /**
+     * negative scenarios
+     */
+    test('POST /user/setNewPassword should fail submit request', async () => {
+        const req = await request.post(`/user/setNewPassword`).send();
+        expect(req.status).toBe(422);
+        expect(req.body).toHaveProperty('errors');
+    });
+
+    test('POST /user/setNewPassword should fail submit request', async () => {
+        const req = await request.post(`/user/setNewPassword`).send({ email: 'wrong@email.com', code: 'wrong_Code', password: 'abcd1234' });
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body.status).toEqual('failed');
+        expect(req.body).toHaveProperty('message');
+        expect(req.body.message).toEqual('user does not exists');
+    });
+
+    test('POST /user/setNewPassword should fail submit request', async () => {
+        const req = await request.post(`/user/setNewPassword`).send({ email: newUserData.email, code: 'WrongCode', password: 'abcd1234' });
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body.status).toEqual('failed');
+        expect(req.body).toHaveProperty('message');
+        expect(req.body.message).toEqual('invalid or expired request');
+    });
+
+    /**
+     * positive scenario
+     */
+    test('POST /user/setNewPassword should successfully submit request', async () => {
+        const { verificationCode } = await userModel.findEntityByParams({ email: newUserData.email });
+        const req = await request.post(`/user/setNewPassword`).send({ email: newUserData.email, code: verificationCode, password: 'abcd1234' });
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body.status).toEqual('success');
+    });
+
+
     // below need to be implemented
-
-    // '/forgetPassword'
-
-    // '/setNewPassword'
 
     // '/login'
 
