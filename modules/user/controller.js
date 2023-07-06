@@ -284,26 +284,16 @@ class userController {
             const userEmail = email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail });
             if (userInfo === null) {
-                return res.status(400).send({
-                    errorCode: 'AUTHFAILED',
-                    additionalInformation: {
-                        message: 'username is wrong!'
-                    }
-                });
+                return res.send({ status: 'failed', message: 'user does not exists' });
             }
             const secureKeyDate = new Date(userInfo.verificationCodeDate);
             secureKeyDate.setMinutes(secureKeyDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
             if (userInfo.verificationCode === code && userInfo.verified === true && secureKeyDate.getTime() > Date.now()) {
                 password = (password) ? this.sha256(password).toString() : '';
                 await this.model.updateEntityByModel(userInfo, { password });
-                res.send({ success: true });
+                res.send({ status: 'success' });
             } else {
-                res.status(400).send({
-                    errorCode: 'INVALIDCODE',
-                    additionalInformation: {
-                        message: 'verification code is not valid!'
-                    }
-                });
+                res.send({ status: 'failed', message: 'invalid or expired request' });
             }
         } catch (error) {
             this.errorHandler(error, res);
