@@ -15,9 +15,12 @@ const newUserData = {
     password: _pawssword,
     captcha: 'xxx'
 };
+
 const userModel = new ModelFactory(UserModel);
 
 describe('User Module', () => {
+
+    JWTToken = null; // we reset here
 
     /**
      * positive scenario
@@ -212,10 +215,41 @@ describe('User Module', () => {
         JWTToken = req.header['authorization'];
     });
 
+    test('POST /user/changePassword should fail to action - unathorized', async () => {
+        const req = await request.post(`/user/changePassword`).send();
+        expect(req.status).toBe(401);
+    });
+
+    test('POST /user/changePassword should fail to action - validation failure', async () => {
+        const req = await request.post(`/user/changePassword`).set('Authorization', `Basic ${JWTToken}`).send();
+        expect(req.status).toBe(422);
+        expect(req.body).toHaveProperty('errors');
+    });
+
+    test('POST /user/changePassword should fail to action - wrong pssword', async () => {
+        const req = await request.post(`/user/changePassword`).set('Authorization', `Basic ${JWTToken}`).send({
+            password: 'wrongone',
+            new: newUserData.password
+        });
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body.status).toEqual('failed');
+    });
+
+    /**
+     * positive scenario
+     */
+    test('POST /user/changePassword should succed to action', async () => {
+        const req = await request.post(`/user/changePassword`).set('Authorization', `Basic ${JWTToken}`).send({
+            password: 'abcd1234',
+            new: newUserData.password
+        });
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body.status).toEqual('success');
+    });
 
     // below need to be implemented
-
-    // '/changePassword'
 
     // '/updateProfile'
 

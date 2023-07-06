@@ -164,7 +164,7 @@ class userController {
             if (userInfo === null) {
                 return res.send({ status: 'failed', message: 'username or password is wrong!' });
             }
-            const token = await Auth.sign(userInfo);
+            const token = await Auth.sign(userInfo.toObject());
             res.set('Authorization', token);
             req._user = userInfo;
             next();
@@ -187,21 +187,15 @@ class userController {
      * @param req
      * @param res
      */
-    changeUserPassword = async ({ _user, body: { password, new: newPWD } }, res) => {
+    changeUserPassword = async (req, res) => {
         try {
-            const userInfo = await this.model.findEntityByParams({ _id: _user._id });
-            const currentPassword = this.sha256(password);
-            const newPassword = this.sha256(newPWD);
-            if (currentPassword === userInfo.password) {
-                await this.model.updateEntityByModel(userInfo, { password: newPassword });
-                res.send({ status: true });
+            const { _user, body: { password, new: newPWD } = {} } = {} = req;
+            const userInfo = await this.model.findEntityByParams({ email: _user.email });
+            if (!!userInfo && this.sha256(password) === userInfo.password) {
+                await this.model.updateEntityByModel(userInfo, { password: this.sha256(newPWD) });
+                res.send({ status: 'success' });
             } else {
-                res.status(400).send({
-                    errorCode: 'VALIDATIONFAILED',
-                    additionalInformation: {
-                        message: 'current password is wrong!'
-                    }
-                });
+                res.send({ status: 'failed', message: 'current password is wrong' });
             }
         } catch (error) {
             this.errorHandler(error, res);

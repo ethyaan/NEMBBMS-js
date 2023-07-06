@@ -85,15 +85,14 @@ export class JWT {
     isLoggedIn = async (req, res, next) => {
         let tokenKey = req.get('Authorization');
         if (tokenKey === undefined) {
-            return res.status(401).send('unAuthorized');
+            return res.status(401).send();
         } else {
             try {
                 let tokenString = tokenKey.split(' ')[1];
                 req._user = await this.verify(tokenString);
                 next();
             } catch (error) {
-                logger.error('Authentication Failed => ', error.toString());
-                return res.status(401).send('unAuthorized');
+                return res.status(401).send();
             }
         }
     }
