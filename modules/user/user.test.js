@@ -1,5 +1,6 @@
 import supertest from 'supertest';
 import app from '../../app.js';
+import { describe } from 'jest-circus';
 const request = supertest(app);
 
 const _pawssword = 'A7_c1UzPO.rO';
@@ -37,8 +38,44 @@ describe('User Module', () => {
         expect(duplicateUser.body.errorMessage).toEqual('user Already Registered.');
     });
 
+    test('POST /user raise validation error', async () => {
+        const duplicateUser = await request.post('/user').send();
+
+        expect(duplicateUser.status).toBe(422);
+        expect(duplicateUser.body).toHaveProperty('errors');
+    });
+
+    /**
+        * positive scenario - depeneded on previous test actions
+        */
+    test('POST /user/resendVerification update user verification code', async () => {
+        const vUser = await request.post('/user/resendVerification').send({ email: newUserData.email });
+
+        expect(vUser.status).toBe(200);
+        expect(vUser.body).toHaveProperty('status');
+        expect(vUser.body).toHaveProperty('verificationCodeDate');
+        expect(vUser.body.status).toEqual('success');
+    });
+
+    /**
+     * negative scenario
+     */
+    test('POST /user/resendVerification fail to update user verification code for not existing user', async () => {
+
+        const vUser = await request.post('/user/resendVerification').send({ email: 'noExists@user.com' });
+        expect(vUser.status).toBe(200);
+        expect(vUser.body).toHaveProperty('status');
+        expect(vUser.body.status).toEqual('failed');
+    });
+
+    test('POST /user/resendVerification should fail due to input validation', async () => {
+        const vUser = await request.post('/user/resendVerification').send();
+        expect(vUser.status).toBe(422);
+        expect(vUser.body).toHaveProperty('errors');
+    });
+
+
     // below need to be implemented
-    // '/resendVerification'
     // '/verify'
     // '/login'
     // '/changePassword'

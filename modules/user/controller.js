@@ -86,25 +86,30 @@ class userController {
                 const vcDate = new Date(userInfo.verificationCodeDate);
                 vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
                 let verificationCodeDate = userInfo.verificationCodeDate;
-                if (vcDate.getTime() < Date.now()) {
+                if (
+                    (process.env.NODE_ENV !== 'test' && vcDate.getTime() < Date.now()) ||
+                    process.env.NODE_ENV === 'test') {
                     const verificationCode = this.generateVerificationCode();
                     verificationCodeDate = new Date();
                     await this.model.updateEntityByModel(userInfo, {
                         verificationCode,
                         verificationCodeDate
                     });
-                    const templateTags = [
-                        { name: "__USERNAME", value: userInfo.email },
-                        { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
-                    ];
 
-                    SendGrid.sendMailByTemplate(
-                        'Confirm your email address',
-                        'signup-confirmation',
-                        templateTags,
-                        [newUser.email],
-                        'no-reply@site.com'
-                    );
+                    if (process.env.NODE_ENV !== 'test') {
+                        const templateTags = [
+                            { name: "__USERNAME", value: userInfo.email },
+                            { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
+                        ];
+
+                        SendGrid.sendMailByTemplate(
+                            'Confirm your email address',
+                            'signup-confirmation',
+                            templateTags,
+                            [newUser.email],
+                            'no-reply@site.com'
+                        );
+                    }
                 }
                 res.send({ status: 'success', verificationCodeDate });
             }
