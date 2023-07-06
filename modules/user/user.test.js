@@ -7,6 +7,7 @@ import { ModelFactory } from '../../common/index.js';
 import { UserModel } from './schema.js';
 
 const _pawssword = 'A7_c1UzPO.rO';
+let JWTToken = null;
 const newUserData = {
     email: 'sample@example.com',
     name: 'Ethan',
@@ -169,10 +170,50 @@ describe('User Module', () => {
         expect(req.body.status).toEqual('success');
     });
 
+    // note that we changed password in previous test and now it is "abcd1234"
+    /**
+     * negative scenarios
+     */
+    test('POST /user/login should fail to log in', async () => {
+
+        const req = await request.post(`/user/login`).send();
+        expect(req.status).toBe(422);
+        expect(req.body).toHaveProperty('errors');
+    });
+
+    test('POST /user/login should fail to log in - worng password', async () => {
+        const req = await request.post(`/user/login`).send({ email: newUserData.email, password: 'wrongOne' });
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body.status).toEqual('failed');
+        expect(req.body).toHaveProperty('message');
+        expect(req.body.message).toEqual('username or password is wrong!');
+    });
+
+    test('POST /user/login should fail to log in - wrong email', async () => {
+        const req = await request.post(`/user/login`).send({ email: 'noExists@user.com', password: 'abcd1234' });
+        expect(req.status).toBe(200);
+        expect(req.body).toHaveProperty('status');
+        expect(req.body.status).toEqual('failed');
+        expect(req.body).toHaveProperty('message');
+        expect(req.body.message).toEqual('username or password is wrong!');
+    });
+
+    /**
+     * positive scenario
+     */
+    test('POST /user/login should sucessfully to log in', async () => {
+        const req = await request.post(`/user/login`).send({ email: newUserData.email, password: 'abcd1234' });
+        expect(req.status).toBe(200);
+        expect(req.headers).toHaveProperty('authorization');
+        expect(req.body).toHaveProperty('name');
+        expect(req.body).toHaveProperty('email');
+        expect(req.body).toHaveProperty('lastName');
+        JWTToken = req.header['authorization'];
+    });
+
 
     // below need to be implemented
-
-    // '/login'
 
     // '/changePassword'
 
