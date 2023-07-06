@@ -27,6 +27,7 @@ class userController {
         const userEmail = email.toLowerCase();
         const userName = name.toLowerCase();
         const userLastname = lastName.toLowerCase();
+        const userPassword = this.sha256(password);
 
         try {
 
@@ -40,7 +41,7 @@ class userController {
                 name: userName,
                 lastName: userLastname,
                 verificationCode,
-                password
+                password: userPassword
             });
 
             if (process.env.NODE_ENV !== 'test') {
@@ -81,30 +82,37 @@ class userController {
             const userEmail = req.body.email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail });
             if (_.get(userInfo, 'verified') || !userInfo) {
-                res.send({ status: 'failed' });
+                return res.send({ status: 'failed' });
             } else {
                 const vcDate = new Date(userInfo.verificationCodeDate);
                 vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
                 let verificationCodeDate = userInfo.verificationCodeDate;
-                if (vcDate.getTime() < Date.now()) {
+                if (
+                    (process.env.NODE_ENV !== 'test' && vcDate.getTime() < Date.now()) ||
+                    process.env.NODE_ENV === 'test') {
                     const verificationCode = this.generateVerificationCode();
                     verificationCodeDate = new Date();
                     await this.model.updateEntityByModel(userInfo, {
                         verificationCode,
                         verificationCodeDate
                     });
-                    const templateTags = [
-                        { name: "__USERNAME", value: userInfo.email },
-                        { name: "__CONFIRMATION_URL", value: verificationCode }, // Todo: #44 is here
-                    ];
 
-                    SendGrid.sendMailByTemplate(
-                        'Confirm your email address',
-                        'signup-confirmation',
-                        templateTags,
-                        [newUser.email],
-                        'no-reply@site.com'
-                    );
+                    if (process.env.NODE_ENV !== 'test') {
+                        const key = this.sha256(verificationCode);
+                        const verificationURL = `${config.APP_URL}/user/verify/${key}`;
+                        const templateTags = [
+                            { name: "__USERNAME", value: userInfo.email },
+                            { name: "__CONFIRMATION_URL", value: verificationURL },
+                        ];
+
+                        SendGrid.sendMailByTemplate(
+                            'Confirm your email address',
+                            'signup-confirmation',
+                            templateTags,
+                            [newUser.email],
+                            'no-reply@site.com'
+                        );
+                    }
                 }
                 res.send({ status: 'success', verificationCodeDate });
             }
@@ -120,21 +128,22 @@ class userController {
      */
     verify = async (req, res) => {
         try {
-            const code = req.body.code;
-            const userInfo = await this.model.findEntityByParams({
-                email: req.body.email.toLowerCase(),
-                verificationCode: code
-            });
+            let frontURL = `${config.APP_FRONT}/confirmation/`;
+            const code = req.params.code;
+            const userInfo = await this.model.findEntityByParams({ verificationCode: code });
             if (userInfo === null) {
-                return res.send({ verified: false });
+                frontURL += `failed`;
+                return res.redirect(frontURL);
             }
             const vcDate = new Date(userInfo.verificationCodeDate);
             vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
-            if (userInfo.verificationCode === code && vcDate.getTime() > Date.now()) {
-                res.send({ verified: true, email: userInfo.email, code: userInfo.verificationCode });
+            if (vcDate.getTime() > Date.now()) {
+                await this.model.updateEntityByModel(userInfo, { verified: true });
+                frontURL += `success`;
             } else {
-                res.send({ verified: false });
+                frontURL += `failed`;
             }
+            res.redirect(frontURL);
         } catch (error) {
             this.errorHandler(error, res);
         }
@@ -146,23 +155,18 @@ class userController {
      * @param res
      * @param next
      */
-    userAuth = async ({ body: { email, password } }, res, next) => {
+    userAuth = async (req, res, next) => {
         try {
+            const { body: { email, password } } = req;
             const userEmail = email.toLowerCase();
             const pwd = this.sha256(password);
             let userInfo = await this.model.findEntityByParams({ email: userEmail, password: pwd }, { 'password': false });
             if (userInfo === null) {
-                return res.status(400).send({
-                    errorCode: 'AUTHFAILED',
-                    additionalInformation: {
-                        message: 'username or password is wrong!'
-                    }
-                });
+                return res.send({ status: 'failed', message: 'username or password is wrong!' });
             }
-            userInfo = userInfo.toObject();
-            const token = await Auth.sign(userInfo);
+            const token = await Auth.sign(userInfo.toObject());
             res.set('Authorization', token);
-            res._user = userInfo;
+            req._user = userInfo;
             next();
         } catch (error) {
             this.errorHandler(error, res);
@@ -174,7 +178,7 @@ class userController {
      * @param req
      * @param res
      */
-    login = async ({ _user: { name = ``, lastName = ``, email = `` } }, res) => {
+    login = async ({ _user: { name = ``, lastName = ``, email = `` } = {} }, res) => {
         res.send({ name, lastName, email });
     }
 
@@ -183,21 +187,15 @@ class userController {
      * @param req
      * @param res
      */
-    changeUserPassword = async ({ _user, body: { password, new: newPWD } }, res) => {
+    changeUserPassword = async (req, res) => {
         try {
-            const userInfo = await this.model.findEntityByParams({ _id: _user._id });
-            const currentPassword = this.sha256(password);
-            const newPassword = this.sha256(newPWD);
-            if (currentPassword === userInfo.password) {
-                await this.model.updateEntityByModel(userInfo, { password: newPassword });
-                res.send({ status: true });
+            const { _user, body: { password, new: newPWD } = {} } = {} = req;
+            const userInfo = await this.model.findEntityByParams({ email: _user.email });
+            if (!!userInfo && this.sha256(password) === userInfo.password) {
+                await this.model.updateEntityByModel(userInfo, { password: this.sha256(newPWD) });
+                res.send({ status: 'success' });
             } else {
-                res.status(400).send({
-                    errorCode: 'VALIDATIONFAILED',
-                    additionalInformation: {
-                        message: 'current password is wrong!'
-                    }
-                });
+                res.send({ status: 'failed', message: 'current password is wrong' });
             }
         } catch (error) {
             this.errorHandler(error, res);
@@ -229,17 +227,12 @@ class userController {
             const userEmail = email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail }, { password: false });
             if (userInfo === null) {
-                return res.status(400).send({
-                    errorCode: 'AUTHFAILED',
-                    additionalInformation: {
-                        message: 'username is wrong'
-                    }
-                });
+                return res.send({ status: 'failed', message: 'user does not exists' });
             }
             const vcDate = new Date(userInfo.verificationCodeDate);
             vcDate.setMinutes(vcDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
             if (Date.now() < vcDate.getTime()) {
-                res.send({ success: true, verificationCodeDate: userInfo.verificationCodeDate });
+                res.send({ status: 'success', verificationCodeDate: userInfo.verificationCodeDate });
             } else if (userInfo.verified === true) {
                 const verificationCode = this.generateVerificationCode();
                 const verificationCodeDate = new Date();
@@ -247,28 +240,24 @@ class userController {
                     verificationCode,
                     verificationCodeDate
                 });
+                if (process.env.NODE_ENV !== 'test') {
+                    const templateTags = [
+                        { name: "__USERNAME", value: userInfo.email },
+                        { name: "__RESET_URL", value: verificationCode },  // Todo: #44 is here
+                    ];
 
-                const templateTags = [
-                    { name: "__USERNAME", value: userInfo.email },
-                    { name: "__RESET_URL", value: verificationCode },  // Todo: #44 is here
-                ];
+                    SendGrid.sendMailByTemplate(
+                        'Forgot your password?',
+                        'forget-password',
+                        templateTags,
+                        [newUser.email],
+                        'no-reply@site.com'
+                    );
+                }
 
-                SendGrid.sendMailByTemplate(
-                    'Forgot your password?',
-                    'forget-password',
-                    templateTags,
-                    [newUser.email],
-                    'no-reply@site.com'
-                );
-
-                res.send({ success: true, verificationCodeDate });
+                res.send({ success: 'success', verificationCodeDate });
             } else {
-                res.status(400).send({
-                    errorCode: 'NOTVERIFIED',
-                    additionalInformation: {
-                        message: 'user not verified!'
-                    }
-                });
+                res.send({ status: 'failed' });
             }
         } catch (error) {
             this.errorHandler(error, res);
@@ -285,26 +274,16 @@ class userController {
             const userEmail = email.toLowerCase();
             const userInfo = await this.model.findEntityByParams({ email: userEmail });
             if (userInfo === null) {
-                return res.status(400).send({
-                    errorCode: 'AUTHFAILED',
-                    additionalInformation: {
-                        message: 'username is wrong!'
-                    }
-                });
+                return res.send({ status: 'failed', message: 'user does not exists' });
             }
             const secureKeyDate = new Date(userInfo.verificationCodeDate);
             secureKeyDate.setMinutes(secureKeyDate.getMinutes() + config.VERIFICATION_CODE_LIFE_TIME);
             if (userInfo.verificationCode === code && userInfo.verified === true && secureKeyDate.getTime() > Date.now()) {
-                password = (password) ? this.sha256(password).toString() : '';
-                await this.model.updateEntityByModel(userInfo, { password });
-                res.send({ success: true });
+                const newPassword = (password) ? this.sha256(password).toString() : '';
+                await this.model.updateEntityByModel(userInfo, { password: newPassword });
+                res.send({ status: 'success' });
             } else {
-                res.status(400).send({
-                    errorCode: 'INVALIDCODE',
-                    additionalInformation: {
-                        message: 'verification code is not valid!'
-                    }
-                });
+                res.send({ status: 'failed', message: 'invalid or expired request' });
             }
         } catch (error) {
             this.errorHandler(error, res);

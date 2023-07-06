@@ -113,8 +113,6 @@ first make sure have the `docker` engine installed and runing on your machine <b
 
 `VERIFICATION_CODE_LIFE_TIME` : time to expire of the user verification code in minutes since it get generated, used in `user` module
 
-`RESEND_VC_LIFE_TIME` : verification code resend cool-off time in minute, default is 2, means only one verification code can be generated in every 2 minute, used in `user` modules
-
 `JWT_SECRET` : JSON Web Token Secret signing key, makesure to change this
 
 `SENDGRID_API_KEY` : This environment variable is used to authenticate your application with the SendGrid email service API.

@@ -1,5 +1,5 @@
 import config from '../config.js';
-import * as jsonwebtoken from 'jsonwebtoken';
+import JsonWebToken from 'jsonwebtoken';
 
 // JWT provider options
 
@@ -40,7 +40,7 @@ export class JWT {
      */
     sign = async (payload, options) => {
         const jti = payload.jti || generateId(10);
-        const token = jsonwebtoken.sign({ ...payload, jti }, config.JWT_SECRET, Object.assign({ expiresIn: '1d' }, options));
+        const token = JsonWebToken.sign({ ...payload, jti }, config.JWT_SECRET, Object.assign({ expiresIn: '1d' }, options));
         return token;
     }
 
@@ -51,7 +51,7 @@ export class JWT {
      * @returns
      */
     decode(token, options) {
-        return jsonwebtoken.decode(token, options);
+        return JsonWebToken.decode(token, options);
     }
 
     /**
@@ -62,7 +62,7 @@ export class JWT {
      */
     async verify(token, options) {
         const decoded_1 = await new Promise((resolve, reject) => {
-            return jsonwebtoken.verify(token, config.JWT_SECRET, options, (err, decoded) => {
+            return JsonWebToken.verify(token, config.JWT_SECRET, options, (err, decoded) => {
                 if (err) {
                     return reject(err);
                 }
@@ -85,15 +85,14 @@ export class JWT {
     isLoggedIn = async (req, res, next) => {
         let tokenKey = req.get('Authorization');
         if (tokenKey === undefined) {
-            return res.status(401).send('unAuthorized');
+            return res.status(401).send();
         } else {
             try {
                 let tokenString = tokenKey.split(' ')[1];
                 req._user = await this.verify(tokenString);
                 next();
             } catch (error) {
-                logger.error('Authentication Failed => ', error.toString());
-                return res.status(401).send('unAuthorized');
+                return res.status(401).send();
             }
         }
     }

@@ -1,4 +1,4 @@
-import { body, validationResult } from 'express-validator';
+import { body, validationResult, param } from 'express-validator';
 
 /**
  * // @todo: we may need to implement this as global middleware, testing is required to do that.
@@ -14,7 +14,7 @@ export const validate = (req, res, next) => {
         return next();
     }
     const extractedErrors = [];
-    errors.array().map(err => extractedErrors.push({ [err.param]: err.msg }));
+    errors.array().map(err => extractedErrors.push({ [err.path]: err.msg }));
     return res.status(422).json({
         errors: extractedErrors,
     });
@@ -35,7 +35,8 @@ export const mobileValidator = body('mobile').matches(mobilePattern, 'g').withMe
 
 export const emailValidator = body('email').isEmail().withMessage('please enter valid email address');
 
-export const codeValidator = body('code').exists({ checkFalsy: true, checkNull: true }).withMessage('code is not valid');
+export const paramCodeValidator = param('code').exists({ checkFalsy: true, checkNull: true }).withMessage('code is not valid');
+export const bodyCodeValidator = body('code').exists({ checkFalsy: true, checkNull: true }).withMessage('code is not valid');
 
 export const captchaValidator = body('captcha').exists({ checkFalsy: true, checkNull: true }).withMessage('Captcha is not valid');
 
