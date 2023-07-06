@@ -19,7 +19,7 @@ class usersRouter {
 
 		userRouter.post('/', [...validator.signup()], userCtrl.signup);
 		userRouter.post('/resendVerification', [...validator.resendVerification()], userCtrl.resendVerification);
-		userRouter.post('/verify', [...validator.verify()], userCtrl.verify);
+		userRouter.get('/verify', [...validator.verify()], userCtrl.verify);
 		userRouter.post('/login', [...validator.login()], userCtrl.userAuth, userCtrl.login);
 		userRouter.post('/changePassword', [Auth.isLoggedIn, ...validator.changePassword()], userCtrl.changeUserPassword);
 		userRouter.post('/updateProfile', [Auth.isLoggedIn, ...validator.updateProfile()], userCtrl.updateProfile);
