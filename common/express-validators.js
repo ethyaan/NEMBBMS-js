@@ -35,7 +35,8 @@ export const mobileValidator = body('mobile').matches(mobilePattern, 'g').withMe
 
 export const emailValidator = body('email').isEmail().withMessage('please enter valid email address');
 
-export const codeValidator = param('code').exists({ checkFalsy: true, checkNull: true }).withMessage('code is not valid');
+export const paramCodeValidator = param('code').exists({ checkFalsy: true, checkNull: true }).withMessage('code is not valid');
+export const bodyCodeValidator = body('code').exists({ checkFalsy: true, checkNull: true }).withMessage('code is not valid');
 
 export const captchaValidator = body('captcha').exists({ checkFalsy: true, checkNull: true }).withMessage('Captcha is not valid');
 
