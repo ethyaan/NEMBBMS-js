@@ -207,11 +207,12 @@ class userController {
      * @param req
      * @param res
      */
-    updateProfile = async ({ _user, body: { name, lastName } }, res) => {
+    updateProfile = async (req, res) => {
         try {
+            const { _user, body: { name, lastName } } = req;
             const userInfo = await this.model.findEntityByParams({ _id: _user._id });
             await this.model.updateEntityByModel(userInfo, { name, lastName });
-            res.send({ message: 'your profile updated successfully' });
+            res.send({ status: 'success', message: 'your profile updated successfully' });
         } catch (error) {
             this.errorHandler(error, res);
         }
@@ -300,7 +301,7 @@ class userController {
             const userProfile = await this.model.findEntityByParams({ _id }, {
                 _id: 0, password: 0, verificationCode: 0, verificationCodeDate: 0, verified: 0
             });
-            res.send({ message: 'success', data: userProfile });
+            res.send({ status: 'success', data: userProfile });
         } catch (error) {
             this.errorHandler(error, res);
         }
